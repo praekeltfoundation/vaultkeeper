@@ -1,4 +1,0 @@
-Django Vaultkeeper Daemon Repository
-========================
-
-
