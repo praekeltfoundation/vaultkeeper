@@ -5,6 +5,6 @@ cache: pip
 before_install:
   - pip install --upgrade pip
 install:
-  - pip install -e .[testing] --process-dependency-links
+  - pip install -e .[test] --process-dependency-links
 script:
   - pytest
