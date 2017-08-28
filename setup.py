@@ -11,6 +11,13 @@ install_requires = [
                     'requests',
 ]
 
+extras_require = {
+        'test': [
+            'pytest>=3.0.0',
+            'responses',
+        ]
+}
+
 dependency_links = [
     'https://github.com/mracter/hvac/archive/b0811f0446760125baefea6383711035104e6df1.zip#egg=hvac-0.2.17+git.b817da4',
 ]
@@ -23,12 +30,7 @@ setup(
                 'fetch and renew Vault credentials.',
     long_description=readme,
     install_requires=install_requires,
-    extras_require={
-        'testing': [
-            'pytest',
-            'responses',
-        ]
-    },
+    extras_require=extras_require,
     author='mracter',
     author_email='mary@praekelt.org',
     url='https://github.com/praekeltfoundation/vaultkeeper',
