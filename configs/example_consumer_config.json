@@ -1,0 +1,37 @@
+[
+  {
+    "id": "creds1",
+    "backend": "database",
+    "endpoint": "path/to/instance",
+    "vault_path": "vault/path",
+    "schema": "myschema",
+    "policy": "read"
+  },
+
+  {
+    "id": "creds2",
+    "backend": "database",
+    "endpoint": "path/to/instance",
+    "vault_path": "vault/path",
+    "schema": "myschema",
+    "policy": "readwrite"
+  },
+
+  {
+    "id": "creds3",
+    "backend": "rabbitmq",
+    "endpoint": "path/to/instance",
+    "vault_path": "vault/path",
+    "vhost": "myvhost",
+    "policy": "readwrite"
+  },
+
+  {
+    "id": "creds4",
+    "backend": "aws",
+    "endpoint": "path/to/instance",
+    "vault_path": "vault/path",
+    "region": "myregion",
+    "policy": "readwrite"
+  }
+]
