@@ -13,7 +13,6 @@ def configs():
         'vault_addr': 'https://test-vault-instance.net',
         'entry_script': '',
         'working_directory': '',
-        'log_path': '../../logs/testlog.log',
         'credential_path': '',
         'lease_path': '',
         'token_refresh': 300,
