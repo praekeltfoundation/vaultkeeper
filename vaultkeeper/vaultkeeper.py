@@ -1,7 +1,6 @@
 import logging
 import time
 import json
-import daemon
 import signal
 import os
 import sys
@@ -41,6 +40,8 @@ def get_marathon_appname(env=os.environ):
 
 
 class Vaultkeeper(object):
+    logger = logging.getLogger(__name__)
+
     def __init__(self,
                  configs, secrets,
                  taskid, appname):
@@ -59,28 +60,6 @@ class Vaultkeeper(object):
 
     def setup(self):
         self.vault_client = hvac.Client(url=self.configs.vault_addr)
-        self.logger = logging.getLogger('DaemonLog')
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler = logging.FileHandler(self.configs.log_path)
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-
-        self.context = daemon.DaemonContext(
-            files_preserve=[
-                handler.stream,
-            ],
-            working_directory=self.configs.working_dir,
-            umask=117,
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-            detach_process=False,
-            signal_map={
-                signal.SIGTERM: None,
-                signal.SIGHUP: None,
-                signal.SIGUSR1: None,
-            },
-        )
 
     def get_wrapped_token(self):
         payload = {'task_id': self.taskid}
@@ -142,19 +121,17 @@ class Vaultkeeper(object):
                     self.renew_lease(s)
 
     def run(self):
-        with self.context:
-            logger = logging.getLogger('DaemonLog')
-            self.get_wrapped_token()
-            logger.info('Written credentials to ' + self.configs.credential_path)
-            self.get_creds()
-            self.write_credentials()
-            django = subprocess.Popen(['sh', self.configs.entry_script],
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.STDOUT)
-            while django.poll() is None:
-                self.renew_token()
-                self.renew_all()
-                time.sleep(self.configs.refresh_interval)
+        self.get_wrapped_token()
+        logger.info('Written credentials to ' + self.configs.credential_path)
+        self.get_creds()
+        self.write_credentials()
+        app = subprocess.Popen(['sh', self.configs.entry_script],
+                               shell=False
+                               )
+        while app.poll() is None:
+            self.renew_token()
+            self.renew_all()
+            time.sleep(self.configs.refresh_interval)
 
 
 def main():
