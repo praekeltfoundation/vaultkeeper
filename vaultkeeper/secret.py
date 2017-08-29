@@ -2,19 +2,6 @@ import sys
 import json
 import time
 
-classnames = {
-    'database': 'Database',
-    'postgresql': 'Database',
-    'rabbitmq': 'RabbitMQ',
-    'aws': 'AWS',
-    'token': 'Token',
-}
-
-
-def str_to_class(string):
-    classname = classnames[string.lower()]
-    return getattr(sys.modules[__name__], classname)
-
 
 class Secret(object):
     def __init__(self, name, backend):
@@ -46,14 +33,13 @@ class Secret(object):
 
     def printable(self):
         return {
-            self.name: {
+                'id': self.name,
                 'endpoint': self.endpoint,
                 'vault_path': self.vault_path,
                 'policy': self.policy,
                 'renewable': self.renewable,
                 'lease_id': self.lease_id,
                 'lease_duration': self.lease_duration
-            }
         }
 
 
@@ -71,7 +57,7 @@ class Generic(Secret):
 
     def printable(self):
         output = Secret.printable(self)
-        output[self.name]['secret_value'] = self.secret_value
+        output['secret_value'] = self.secret_value
         return output
 
 
@@ -89,7 +75,7 @@ class Token(Secret):
 
     def printable(self):
         output = Secret.printable(self)
-        output[self.name]['token_value'] = self.token_value
+        output['token_value'] = self.token_value
         return output
 
 
@@ -111,8 +97,8 @@ class Database(Secret):
 
     def printable(self):
         output = Secret.printable(self)
-        output[self.name]['username'] = self.username
-        output[self.name]['password'] = self.password
+        output['username'] = self.username
+        output['password'] = self.password
         return output
 
 
@@ -134,8 +120,8 @@ class RabbitMQ(Secret):
 
     def printable(self):
         output = Secret.printable(self)
-        output[self.name]['username'] = self.username
-        output[self.name]['password'] = self.password
+        output['username'] = self.username
+        output['password'] = self.password
         return output
 
 
@@ -159,9 +145,9 @@ class AWS(Secret):
 
     def printable(self):
         output = Secret.printable(self)
-        output[self.name]['access_key'] = self.access_key
-        output[self.name]['secret_key'] = self.secret_key
-        output[self.name]['security_token'] = self.security_token
+        output['access_key'] = self.access_key
+        output['secret_key'] = self.secret_key
+        output['security_token'] = self.security_token
         return output
 
 
@@ -172,7 +158,7 @@ def parse_secret_file(config_path):
     for entry in data:
         name = entry['id']
         backend = entry['backend']
-        cls = str_to_class(str(backend))
+        cls = classnames[str(backend)]
         inst = cls(name, backend)
         inst.constructor(**entry)
         secrets[name] = inst
@@ -184,7 +170,7 @@ def parse_secret_data(data):
     for entry in data:
         name = entry['id']
         backend = entry['backend']
-        cls = str_to_class(str(backend))
+        cls = classnames[str(backend)]
         inst = cls(name, backend)
         inst.constructor(**entry)
         secrets[name] = inst
@@ -196,3 +182,11 @@ def printable_secrets(secrets):
     for name, secret in secrets.iteritems():
         output.update(secret.printable())
     return output
+
+classnames = {
+    'database': Database,
+    'postgresql': Database,
+    'rabbitmq': RabbitMQ,
+    'aws': AWS,
+    'token': Token,
+}

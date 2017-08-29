@@ -94,3 +94,6 @@ ENV/
 
 #Test log directory
 logs/
+
+#Kate swap files
+*.kate-swp

@@ -13,7 +13,6 @@ def configs():
         'vault_addr': 'https://test-vault-instance.net',
         'entry_script': '',
         'working_directory': '',
-        'log_path': '../../logs/testlog.log',
         'credential_path': '',
         'lease_path': '',
         'token_refresh': 300,
@@ -103,7 +102,7 @@ class TestVaultkeeper(object):
                                content_type='application/json')
         self.vaultkeeper.get_creds()
         assert (secret.printable_secrets(self.vaultkeeper.secrets) == {
-                'creds1': {
+                    'id': 'creds1',
                     'endpoint': 'https://test-postgres-instance.net',
                     'vault_path': 'database/creds/postgresql_myschema_readonly',
                     'policy': 'read',
@@ -112,7 +111,7 @@ class TestVaultkeeper(object):
                     'lease_duration': 100,
                     'username': 'testuser1',
                     'password': 'testpass1'
-                }
+
         })
 
     @responses.activate
