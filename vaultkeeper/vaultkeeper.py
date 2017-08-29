@@ -4,7 +4,7 @@ import json
 import signal
 import os
 import sys
-import subprocess
+import subprocess32 as subprocess
 from configparser import ConfigParser
 import secret
 import hvac
@@ -129,9 +129,14 @@ class Vaultkeeper(object):
                                shell=False
                                )
         while app.poll() is None:
-            self.renew_token()
-            self.renew_all()
-            time.sleep(self.configs.refresh_interval)
+            try:
+                app.wait(timeout=self.configs.refresh_interval)
+            except TimeoutExpired as tex:
+                self.logger.info('Renewing leases...')
+                self.renew_token()
+                self.renew_all()
+            else:
+                system.exit(0)
 
 
 def main():
@@ -148,7 +153,6 @@ def main():
     vaultkeeper = Vaultkeeper(configs, required_secrets, taskid, appname)
     vaultkeeper.setup()
     vaultkeeper.run()
-    exit(0)
 
 
 if __name__ == '__main__':

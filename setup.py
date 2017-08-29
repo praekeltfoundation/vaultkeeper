@@ -9,6 +9,7 @@ with open('README.rst') as f:
 install_requires = [
                     'hvac==0.2.17+git.b817da4',
                     'requests',
+                    'subprocess32'
 ]
 
 extras_require = {
