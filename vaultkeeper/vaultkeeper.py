@@ -122,7 +122,7 @@ class Vaultkeeper(object):
 
     def run(self):
         self.get_wrapped_token()
-        logger.info('Written credentials to ' + self.configs.credential_path)
+        self.logger.info('Written credentials to ' + self.configs.credential_path)
         self.get_creds()
         self.write_credentials()
         app = subprocess.Popen(['sh', self.configs.entry_script],
