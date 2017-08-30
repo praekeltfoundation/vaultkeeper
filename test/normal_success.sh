@@ -1,6 +1,6 @@
 #!/bin/sh
 
 echo "Subprocess started..."
-sleep 100
+sleep 10
 echo "Subprocess ended."
 exit 0

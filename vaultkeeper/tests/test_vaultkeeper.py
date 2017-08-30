@@ -203,7 +203,7 @@ class TestVaultkeeper(object):
                                content_type='application/json')
 
         self.vaultkeeper.configs.entry_script = './test/normal_success.sh'
-        self.vaultkeeper.configs.refresh_interval = 30
+        self.vaultkeeper.configs.refresh_interval = 3
         status_code = self.vaultkeeper.run()
         assert status_code == 0
 
@@ -242,6 +242,6 @@ class TestVaultkeeper(object):
                                content_type='application/json')
 
         self.vaultkeeper.configs.entry_script = './test/normal_failure.sh'
-        self.vaultkeeper.configs.refresh_interval = 30
+        self.vaultkeeper.configs.refresh_interval = 3
         status_code = self.vaultkeeper.run()
         assert status_code == 1
