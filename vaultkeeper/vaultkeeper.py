@@ -129,7 +129,7 @@ class Vaultkeeper(object):
         app = subprocess.Popen(['sh', self.configs.entry_script],
                                shell=False
                                )
-        while app.poll() is None:
+        while True:
             try:
                 app.wait(timeout=self.configs.refresh_interval)
             except TimeoutExpired as tex:
