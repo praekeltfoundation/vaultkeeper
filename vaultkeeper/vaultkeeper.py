@@ -92,7 +92,7 @@ class Vaultkeeper(object):
                 if exc.errno != errno.EEXIST:
                     raise
         data = secret.printable_secrets(self.secrets)
-        with open(self.configs.credential_path, 'w+') as outfile:
+        with open(self.configs.credential_path, 'w') as outfile:
             json.dump(data, outfile)
 
     def get_cred(self, vault_path):

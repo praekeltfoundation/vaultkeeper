@@ -16,6 +16,7 @@ extras_require = {
         'test': [
             'pytest>=3.0.0',
             'responses',
+            'pytest-cov',
         ]
 }
 
