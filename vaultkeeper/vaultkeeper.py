@@ -5,6 +5,7 @@ import signal
 import os
 import sys
 import subprocess32 as subprocess
+from subprocess32 import TimeoutExpired
 from configparser import ConfigParser
 import secret
 import hvac
@@ -136,7 +137,7 @@ class Vaultkeeper(object):
                 self.renew_token()
                 self.renew_all()
             else:
-                system.exit(0)
+                return app.returncode
 
 
 def main():
@@ -152,7 +153,8 @@ def main():
 
     vaultkeeper = Vaultkeeper(configs, required_secrets, taskid, appname)
     vaultkeeper.setup()
-    vaultkeeper.run()
+    returncode = vaultkeeper.run()
+    sys.exit(returncode)
 
 
 if __name__ == '__main__':
