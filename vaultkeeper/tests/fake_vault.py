@@ -107,6 +107,11 @@ class FakeVault(object):
                 'lease_duration': 100,
                 'renewable': True,
                 'expired': False
+            },
+            'auth/token/create/lease-id1': {
+                'lease_duration': 100,
+                'renewable': True,
+                'expired': False
             }
         }
 

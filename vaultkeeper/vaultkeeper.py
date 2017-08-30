@@ -1,8 +1,7 @@
 import logging
-import time
 import json
-import signal
 import os
+import errno
 import sys
 import subprocess32 as subprocess
 from subprocess32 import TimeoutExpired
@@ -86,8 +85,14 @@ class Vaultkeeper(object):
         return self.vault_client.token
 
     def write_credentials(self):
+        if not os.path.exists(os.path.dirname(self.configs.credential_path)):
+            try:
+                os.makedirs(os.path.dirname(self.configs.credential_path))
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
         data = secret.printable_secrets(self.secrets)
-        with open(self.configs.credential_path, 'w') as outfile:
+        with open(self.configs.credential_path, 'w+') as outfile:
             json.dump(data, outfile)
 
     def get_cred(self, vault_path):
@@ -117,9 +122,8 @@ class Vaultkeeper(object):
 
     def renew_all(self):
         for entry in self.secrets.itervalues():
-            for s in entry.itervalues():
-                if s.renewable:
-                    self.renew_lease(s)
+            if entry.renewable:
+                self.renew_lease(entry)
 
     def run(self):
         self.get_wrapped_token()

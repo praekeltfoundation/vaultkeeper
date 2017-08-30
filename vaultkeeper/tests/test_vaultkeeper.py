@@ -13,7 +13,7 @@ def configs():
         'vault_addr': 'https://test-vault-instance.net',
         'entry_script': '',
         'working_directory': '',
-        'credential_path': '',
+        'credential_path': './creds/creds.txt',
         'lease_path': '',
         'token_refresh': 300,
         'refresh_interval': 30,
@@ -35,6 +35,21 @@ def secrets():
         'policy': 'read'
     }]
     return secret.parse_secret_data(data)
+
+
+def vault_token():
+    vault_secret = secret.Token('vault-token', 'token')
+    vault_secret.add_secret({
+            'lease_id': 'auth/token/create/lease-id1',
+            'lease_duration': 30,
+            'renewable': True,
+            'vault_path': '/vault/token/path',
+            'data': {
+                'token': '00000000-0000-0000-0000-000000000001',
+            }
+        }
+    )
+    return vault_secret
 
 
 class TestVaultkeeper(object):
@@ -152,3 +167,81 @@ class TestVaultkeeper(object):
         })
         self.vaultkeeper.renew_lease(renew)
         assert renew.lease_duration == 300
+
+    @responses.activate
+    def test_run_natural_success(self, tmpdir):
+        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_secret = vault_token()
+        outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
+        self.vaultkeeper.configs.credential_path = outfile.strpath
+        responses.add_callback(responses.POST,
+                               self.fake_gatekeeper_url + '/token',
+                               callback=self.fake_gatekeeper.get_token,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url
+                               + '/v1/database/creds/postgresql_myschema_readonly',
+                               callback=self.fake_vault.get_db_creds,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url + '/v1/auth/token/lookup-self',
+                               callback=self.fake_vault.lookup_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.POST,
+                               self.fake_vault_url + '/v1/auth/token/renew',
+                               callback=self.fake_vault.renew_lease,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url + '/v1/auth/token/lookup-self',
+                               callback=self.fake_vault.lookup_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.PUT,
+                               self.fake_vault_url + '/v1/sys/leases/renew',
+                               callback=self.fake_vault.renew_lease,
+                               content_type='application/json')
+
+        self.vaultkeeper.configs.entry_script = './test/normal_success.sh'
+        self.vaultkeeper.configs.refresh_interval = 30
+        status_code = self.vaultkeeper.run()
+        assert status_code == 0
+
+    @responses.activate
+    def test_run_natural_failure(self, tmpdir):
+        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_secret = vault_token()
+        outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
+        self.vaultkeeper.configs.credential_path = outfile.strpath
+        responses.add_callback(responses.POST,
+                               self.fake_gatekeeper_url + '/token',
+                               callback=self.fake_gatekeeper.get_token,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url
+                               + '/v1/database/creds/postgresql_myschema_readonly',
+                               callback=self.fake_vault.get_db_creds,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url + '/v1/auth/token/lookup-self',
+                               callback=self.fake_vault.lookup_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.POST,
+                               self.fake_vault_url + '/v1/auth/token/renew',
+                               callback=self.fake_vault.renew_lease,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               self.fake_vault_url + '/v1/auth/token/lookup-self',
+                               callback=self.fake_vault.lookup_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.PUT,
+                               self.fake_vault_url + '/v1/sys/leases/renew',
+                               callback=self.fake_vault.renew_lease,
+                               content_type='application/json')
+
+        self.vaultkeeper.configs.entry_script = './test/normal_failure.sh'
+        self.vaultkeeper.configs.refresh_interval = 30
+        status_code = self.vaultkeeper.run()
+        assert status_code == 1
