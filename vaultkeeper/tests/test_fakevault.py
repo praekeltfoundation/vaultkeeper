@@ -1,4 +1,3 @@
-import pytest
 import requests
 import responses
 
@@ -85,11 +84,14 @@ class TestFakeVault(object):
             'X-Vault-Token': '00000000-0000-0000-0000-000000000001'
         }
 
-        resp = requests.get(self.fake_vault_url + '/v1/database/creds/postgresql_myschema_readonly',
+        resp = requests.get(self.fake_vault_url
+                            + '/v1/database/creds/'
+                              'postgresql_myschema_readonly',
                             headers=headers)
 
         assert resp.json() == {
-            'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
             'lease_duration': 100,
             'renewable': True,
             'data': {
@@ -106,7 +108,8 @@ class TestFakeVault(object):
         }
 
         payload = {
-            'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
             'increment': 30
         }
         resp = requests.put(self.fake_vault_url + '/v1/sys/leases/renew',
@@ -114,7 +117,8 @@ class TestFakeVault(object):
                             json=payload)
 
         assert resp.json() == {
-            'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
             'lease_duration': 30,
             'renewable': True
         }
@@ -128,7 +132,9 @@ class TestFakeVault(object):
         }
 
         payload = {
-            'lease_id': 'database/creds/postgresql/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql/'
+                'postgresql_myschema_readonly/lease-id1',
             'increment': 30
         }
         resp = requests.put(self.fake_vault_url + '/v1/sys/leases/renew',
@@ -149,8 +155,8 @@ class TestFakeVault(object):
             'increment': 35
         }
         resp = requests.post(self.fake_vault_url + '/v1/auth/token/renew-self',
-                            headers=headers,
-                            json=payload)
+                             headers=headers,
+                             json=payload)
         assert resp.json() == {
           "auth": {
             "client_token": '00000000-0000-0000-0000-000000000001',

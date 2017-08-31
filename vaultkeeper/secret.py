@@ -185,6 +185,7 @@ def printable_secrets(secrets):
         output.update(secret.printable())
     return output
 
+
 classnames = {
     'database': Database,
     'postgresql': Database,

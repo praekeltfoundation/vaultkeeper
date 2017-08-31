@@ -176,9 +176,11 @@ class FakeVault(object):
                 path = path[0:-1]
             for entry in policyset:
                 for key in self.policies[entry].keys():
-                    pattern = re.compile('^' + re.escape(path) + '[a-zA-Z0-9_\-]*$')
+                    regex = '^' + re.escape(path) + '[a-zA-Z0-9_\-]*$'
+                    pattern = re.compile(regex)
                     if key.endswith('/*'):
-                        pattern = re.compile('^' + re.escape(path) + '[a-zA-Z0-9_\-/]*$')
+                        regex = '^' + re.escape(path) + '[a-zA-Z0-9_\-/]*$'
+                        pattern = re.compile(regex)
                     match = pattern.match(str(key))
                     if not match:
                         continue
@@ -216,7 +218,8 @@ class FakeVault(object):
             return (401, {}, {})
 
         body = {
-            'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
             'lease_duration': 100,
             'renewable': True,
             'data': {
@@ -322,7 +325,8 @@ class FakeVault(object):
                                content_type='application/json')
         responses.add_callback(responses.GET,
                                fake_vault_url
-                               + '/v1/database/creds/postgresql_myschema_readonly',
+                               + ('/v1/database/creds/'
+                                  'postgresql_myschema_readonly'),
                                callback=self.get_db_creds,
                                content_type='application/json')
 
@@ -350,4 +354,3 @@ class FakeVault(object):
                                fake_vault_url + '/v1/sys/leases/renew',
                                callback=self.renew_lease,
                                content_type='application/json')
-

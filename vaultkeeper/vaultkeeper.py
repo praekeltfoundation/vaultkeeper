@@ -1,7 +1,6 @@
 import logging
 import json
 import os
-import errno
 import sys
 import subprocess32 as subprocess
 from subprocess32 import TimeoutExpired
@@ -108,7 +107,7 @@ class Vaultkeeper(object):
     def renew_lease(self, s):
         assert self.vault_client.is_authenticated()
         result = self.vault_client.renew_secret(s.lease_id,
-                                       s.lease_duration)
+                                                s.lease_duration)
         s.update_lease(s.lease_id, s.lease_duration)
         return result
 
@@ -119,7 +118,8 @@ class Vaultkeeper(object):
 
     def run(self):
         self.get_wrapped_token()
-        self.logger.info('Written credentials to ' + self.configs.credential_path)
+        self.logger.info('Written credentials to '
+                         + self.configs.credential_path)
         self.get_creds()
         self.write_credentials()
         app = subprocess.Popen(['sh', self.configs.entry_script],
@@ -128,7 +128,7 @@ class Vaultkeeper(object):
         while True:
             try:
                 app.wait(timeout=self.configs.refresh_interval)
-            except TimeoutExpired as tex:
+            except TimeoutExpired:
                 self.logger.info('Renewing leases...')
                 self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()

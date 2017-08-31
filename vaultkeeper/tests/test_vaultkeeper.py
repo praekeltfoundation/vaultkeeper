@@ -42,14 +42,14 @@ def secrets():
 def vault_token():
     vault_secret = secret.Token('vault-token', 'token')
     vault_secret.add_secret({
-            'lease_id': 'auth/token/create/lease-id1',
-            'lease_duration': 30,
-            'renewable': True,
-            'vault_path': '/vault/token/path',
-            'data': {
-                'token': '00000000-0000-0000-0000-000000000001',
-            }
+        'lease_id': 'auth/token/create/lease-id1',
+        'lease_duration': 30,
+        'renewable': True,
+        'vault_path': '/vault/token/path',
+        'data': {
+            'token': '00000000-0000-0000-0000-000000000001',
         }
+    }
     )
     return vault_secret
 
@@ -89,43 +89,50 @@ class TestVaultkeeper(object):
     @responses.activate
     def test_authenticated(self):
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         assert self.vaultkeeper.vault_client.is_authenticated()
 
     @responses.activate
     def test_get_cred(self):
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.get_creds()
         assert (secret.printable_secrets(self.vaultkeeper.secrets) == {
-                    'id': 'creds1',
-                    'endpoint': 'https://test-postgres-instance.net',
-                    'vault_path': 'database/creds/postgresql_myschema_readonly',
-                    'policy': 'read',
-                    'renewable': True,
-                    'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
-                    'lease_duration': 100,
-                    'username': 'testuser1',
-                    'password': 'testpass1'
+            'id': 'creds1',
+            'endpoint': 'https://test-postgres-instance.net',
+            'vault_path':
+                'database/creds/postgresql_myschema_readonly',
+            'policy': 'read',
+            'renewable': True,
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_duration': 100,
+            'username': 'testuser1',
+            'password': 'testpass1'
 
         })
 
     @responses.activate
     def test_renew_token(self):
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
         self.vaultkeeper.renew_token(30)
         assert self.vaultkeeper.vault_secret.lease_duration == 30
 
     @responses.activate
     def test_renew_lease(self):
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
         renew = self.vaultkeeper.secrets['creds1']
         renew.add_secret({
-            'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
+            'lease_id':
+                'database/creds/postgresql_myschema_readonly/lease-id1',
             'lease_duration': 300,
             'renewable': True,
             'data': {
@@ -141,7 +148,8 @@ class TestVaultkeeper(object):
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
         outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
         self.vaultkeeper.configs.credential_path = outfile.strpath
@@ -163,7 +171,8 @@ class TestVaultkeeper(object):
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
-        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
         outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
         self.vaultkeeper.configs.credential_path = outfile.strpath
