@@ -11,9 +11,9 @@ def configs():
     data = {
         'gatekeeper_addr': 'https://test-gatekeeper-instance.net',
         'vault_addr': 'https://test-vault-instance.net',
-        'entry_script': '',
+        'entry_cmd': '',
         'working_directory': '',
-        'credential_path': './creds/creds.txt',
+        'credential_path': '',
         'lease_path': '',
         'token_refresh': 300,
         'refresh_interval': 30,
@@ -151,7 +151,7 @@ class TestVaultkeeper(object):
         self.vaultkeeper.configs.credential_path = (
             tmpdir.join('./creds.txt').strpath)
 
-        self.vaultkeeper.configs.entry_script = './test/normal_success.sh'
+        self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_success.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
         status_code = self.vaultkeeper.run()
         assert status_code == 0
@@ -167,7 +167,7 @@ class TestVaultkeeper(object):
         self.vaultkeeper.configs.credential_path = (
             tmpdir.join('./creds.txt').strpath)
 
-        self.vaultkeeper.configs.entry_script = './test/normal_failure.sh'
+        self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
         status_code = self.vaultkeeper.run()
         assert status_code == 3

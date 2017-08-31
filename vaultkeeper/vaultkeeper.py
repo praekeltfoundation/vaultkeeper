@@ -2,6 +2,7 @@ import logging
 import json
 import os
 import sys
+import shlex
 import subprocess32 as subprocess
 from subprocess32 import TimeoutExpired
 from configparser import ConfigParser
@@ -122,7 +123,9 @@ class Vaultkeeper(object):
                          + self.configs.credential_path)
         self.get_creds()
         self.write_credentials()
-        app = subprocess.Popen(['sh', self.configs.entry_script],
+        args = shlex.split(self.configs.entry_cmd.encode(
+            'utf-8', errors='ignore'))
+        app = subprocess.Popen(args,
                                shell=False
                                )
         while True:
