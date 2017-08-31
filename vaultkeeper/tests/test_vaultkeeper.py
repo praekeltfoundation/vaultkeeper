@@ -74,7 +74,6 @@ class TestVaultkeeper(object):
 
     @responses.activate
     def test_get_wrapped_token(self):
-        self.fake_vault.add_handlers(responses, self.fake_vault_url)
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         wrapped_token = self.vaultkeeper.get_wrapped_token()
         assert wrapped_token == '10000000-1000-1000-1000-100000000000'
@@ -151,18 +150,11 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
-        outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
-        self.vaultkeeper.configs.credential_path = outfile.strpath
-
-        if not os.path.exists(os.path.dirname(outfile.strpath)):
-            try:
-                os.makedirs(os.path.dirname(outfile.strpath))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
+        self.vaultkeeper.configs.credential_path = (
+            tmpdir.join('./creds.txt').strpath)
 
         self.vaultkeeper.configs.entry_script = './test/normal_success.sh'
-        self.vaultkeeper.configs.refresh_interval = 0.3
+        self.vaultkeeper.configs.refresh_interval = 0.1
         status_code = self.vaultkeeper.run()
         assert status_code == 0
 
@@ -174,17 +166,10 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
-        outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
-        self.vaultkeeper.configs.credential_path = outfile.strpath
-
-        if not os.path.exists(os.path.dirname(outfile.strpath)):
-            try:
-                os.makedirs(os.path.dirname(outfile.strpath))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
+        self.vaultkeeper.configs.credential_path = (
+            tmpdir.join('./creds.txt').strpath)
 
         self.vaultkeeper.configs.entry_script = './test/normal_failure.sh'
-        self.vaultkeeper.configs.refresh_interval = 0.3
+        self.vaultkeeper.configs.refresh_interval = 0.1
         status_code = self.vaultkeeper.run()
         assert status_code == 3
