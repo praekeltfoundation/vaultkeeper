@@ -104,7 +104,7 @@ class TestFakeVault(object):
         headers = {
             'X-Vault-Token': '00000000-0000-0000-0000-000000000001'
         }
-        
+
         payload = {
             'lease_id': 'database/creds/postgresql_myschema_readonly/lease-id1',
             'increment': 30
