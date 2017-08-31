@@ -1,6 +1,4 @@
 import responses
-import os
-from os import errno
 
 from ..vaultkeeper import Vaultkeeper
 from ..vaultkeeper import ConfigParser
