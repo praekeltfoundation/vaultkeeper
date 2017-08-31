@@ -85,12 +85,6 @@ class Vaultkeeper(object):
         return self.vault_client.token
 
     def write_credentials(self):
-        if not os.path.exists(os.path.dirname(self.configs.credential_path)):
-            try:
-                os.makedirs(os.path.dirname(self.configs.credential_path))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
         data = secret.printable_secrets(self.secrets)
         with open(self.configs.credential_path, 'w') as outfile:
             json.dump(data, outfile)
@@ -106,19 +100,17 @@ class Vaultkeeper(object):
             response = self.get_cred(cred.vault_path)
             cred.add_secret(response)
 
-    def renew_token(self):
-        self.vault_client.renew_secret(self.vault_secret.lease_id,
-                                       self.configs.refresh_interval)
-        self.vault_secret.update_lease(self.vault_secret.lease_id,
-                                       self.configs.refresh_interval)
-        return self.vault_secret
+    def renew_token(self, ttl):
+        result = self.vault_client.renew_token(increment=ttl)
+        self.vault_secret.update_ttl(ttl)
+        return result
 
     def renew_lease(self, s):
         assert self.vault_client.is_authenticated()
-        self.vault_client.renew_secret(s.lease_id,
+        result = self.vault_client.renew_secret(s.lease_id,
                                        s.lease_duration)
         s.update_lease(s.lease_id, s.lease_duration)
-        return s
+        return result
 
     def renew_all(self):
         for entry in self.secrets.itervalues():
@@ -138,7 +130,7 @@ class Vaultkeeper(object):
                 app.wait(timeout=self.configs.refresh_interval)
             except TimeoutExpired as tex:
                 self.logger.info('Renewing leases...')
-                self.renew_token()
+                self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()
             else:
                 return app.returncode

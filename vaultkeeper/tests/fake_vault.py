@@ -83,32 +83,30 @@ class FakeVault(object):
         self.wrapped_tokens = {
             '10000000-1000-1000-1000-100000000000': {
                 'data': '00000000-0000-0000-0000-000000000001',
-                'wrap_ttl': '200s'
+                'wrap_ttl': 200
             }
         }
 
         self.tokens = {
             '00000000-0000-0000-0000-000000000000': {
                 'policies': ['default', 'gatekeeper'],
-                'ttl': '2h'
+                'ttl': 3600,
+                'renewable': True,
             },
             '00000000-0000-0000-0000-000000000001': {
                 'policies': ['default', 'django-consumer'],
-                'ttl': '2h'
+                'ttl': 3600,
+                'renewable': True,
             },
             '10000000-1000-1000-1000-100000000000': {
                 'policies': ['default'],
-                'ttl': '2h'
+                'ttl': 3600,
+                'renewable': True,
             }
         }
 
         self.leases = {
             'database/creds/postgresql_myschema_readonly/lease-id1': {
-                'lease_duration': 100,
-                'renewable': True,
-                'expired': False
-            },
-            'auth/token/create/lease-id1': {
                 'lease_duration': 100,
                 'renewable': True,
                 'expired': False
@@ -238,6 +236,37 @@ class FakeVault(object):
             }
         }
 
+    def renew_self(self, request):
+        header_data = request.headers
+        client_token = header_data['x-vault-token']
+        path = urlparse(request.url).path[4:]
+        action = 'update'
+        params = {}
+        if not self.token_authorised(client_token, path, action, params):
+            # TODO: Proper errors
+            return (401, {}, {})
+
+        data = json.loads(request.body)
+        increment = data['increment']
+
+        if not self.tokens[client_token]['renewable']:
+            body = {
+                'errors': ['lease not found or lease is not renewable']
+            }
+            return (401, {}, json.dumps(body))
+
+        self.tokens[client_token]['ttl'] = increment
+        headers = {'content-type': 'application/json'}
+        body = {
+          "auth": {
+            "client_token": client_token,
+            "policies": self.tokens[client_token]['policies'],
+            "lease_duration": self.tokens[client_token]['ttl'],
+            "renewable": self.tokens[client_token]['renewable'],
+          }
+        }
+        return (200, headers, json.dumps(body))
+
     def renew_lease(self, request):
         header_data = request.headers
         client_token = header_data['x-vault-token']
@@ -260,7 +289,7 @@ class FakeVault(object):
         if self.leases[leaseid]['expired']:
             return (401, {}, {})
 
-        self.leases[leaseid]['lease_duration'] += increment
+        self.leases[leaseid]['lease_duration'] = increment
         headers = {'content-type': 'application/json'}
         body = {
             'lease_id': leaseid,
@@ -285,3 +314,40 @@ class FakeVault(object):
             }
         }
         return (200, headers, json.dumps(body))
+
+    def add_handlers(self, responses, fake_vault_url):
+        responses.add_callback(responses.POST,
+                               fake_vault_url + '/v1/auth/token/create',
+                               callback=self.create_wrapped_token,
+                               content_type='application/json')
+        responses.add_callback(responses.GET,
+                               fake_vault_url
+                               + '/v1/database/creds/postgresql_myschema_readonly',
+                               callback=self.get_db_creds,
+                               content_type='application/json')
+
+        responses.add_callback(responses.POST,
+                               fake_vault_url + '/v1/auth/token/renew-self',
+                               callback=self.renew_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.POST,
+                               fake_vault_url + '/v1/sys/wrapping/unwrap',
+                               callback=self.unwrap_token,
+                               content_type='application/json')
+
+        responses.add_callback(responses.POST,
+                               fake_vault_url + '/v1/auth/token/renew',
+                               callback=self.renew_lease,
+                               content_type='application/json')
+
+        responses.add_callback(responses.GET,
+                               fake_vault_url + '/v1/auth/token/lookup-self',
+                               callback=self.lookup_self,
+                               content_type='application/json')
+
+        responses.add_callback(responses.PUT,
+                               fake_vault_url + '/v1/sys/leases/renew',
+                               callback=self.renew_lease,
+                               content_type='application/json')
+

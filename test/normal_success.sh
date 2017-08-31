@@ -1,6 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
+python ./test/normal_success.py
+exit $?
 
-echo "Subprocess started..."
-sleep 10
-echo "Subprocess ended."
-exit 0

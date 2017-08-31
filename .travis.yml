@@ -7,7 +7,9 @@ before_install:
 install:
   - pip install -e .[test] --process-dependency-links
   - pip install codecov
+  - pip install flake8
 script:
   - pytest --cov
+  - flake8 .
 after_success:
   - codecov

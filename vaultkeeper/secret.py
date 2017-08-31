@@ -72,6 +72,9 @@ class Token(Secret):
         Secret.add_secret(self, hvac_data)
         self.token_value = hvac_data['data']['token']
 
+    def update_ttl(self, ttl):
+        self.lease_duration = ttl
+
     def printable(self):
         output = Secret.printable(self)
         output['token_value'] = self.token_value

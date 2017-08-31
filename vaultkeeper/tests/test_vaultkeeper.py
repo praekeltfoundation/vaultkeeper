@@ -1,4 +1,6 @@
 import responses
+import os
+from os import errno
 
 from ..vaultkeeper import Vaultkeeper
 from ..vaultkeeper import ConfigParser
@@ -72,49 +74,28 @@ class TestVaultkeeper(object):
 
     @responses.activate
     def test_get_wrapped_token(self):
-        responses.add_callback(responses.POST,
-                               self.fake_gatekeeper_url + '/token',
-                               callback=self.fake_gatekeeper.get_token,
-                               content_type='application/json')
-
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+        self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         wrapped_token = self.vaultkeeper.get_wrapped_token()
         assert wrapped_token == '10000000-1000-1000-1000-100000000000'
 
     @responses.activate
     def test_unwrap_token(self):
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-        responses.add_callback(responses.POST,
-                               self.fake_vault_url + '/v1/sys/wrapping/unwrap',
-                               callback=self.fake_vault.unwrap_token,
-                               content_type='application/json')
-
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
         unwrapped_token = self.vaultkeeper.unwrap_token(
             '10000000-1000-1000-1000-100000000000')
         assert unwrapped_token == '00000000-0000-0000-0000-000000000001'
 
     @responses.activate
     def test_authenticated(self):
-        responses.add_callback(responses.POST,
-                               self.fake_vault_url + '/v1/auth/token/lookup',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-        pass
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+        self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
+        assert self.vaultkeeper.vault_client.is_authenticated()
 
     @responses.activate
     def test_get_cred(self):
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
         self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url
-                               + '/v1/database/creds/postgresql_myschema_readonly',
-                               callback=self.fake_vault.get_db_creds,
-                               content_type='application/json')
         self.vaultkeeper.get_creds()
         assert (secret.printable_secrets(self.vaultkeeper.secrets) == {
                     'id': 'creds1',
@@ -131,29 +112,16 @@ class TestVaultkeeper(object):
 
     @responses.activate
     def test_renew_token(self):
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
         self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-
-        responses.add_callback(responses.POST,
-                               self.fake_vault_url + '/v1/auth/token/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
+        self.vaultkeeper.vault_secret = vault_token()
+        self.vaultkeeper.renew_token(30)
+        assert self.vaultkeeper.vault_secret.lease_duration == 30
 
     @responses.activate
     def test_renew_lease(self):
         self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-
-        responses.add_callback(responses.PUT,
-                               self.fake_vault_url + '/v1/sys/leases/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
         renew = self.vaultkeeper.secrets['creds1']
         renew.add_secret({
@@ -170,78 +138,44 @@ class TestVaultkeeper(object):
 
     @responses.activate
     def test_run_natural_success(self, tmpdir):
+        self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+
         self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
         self.vaultkeeper.vault_secret = vault_token()
         outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
         self.vaultkeeper.configs.credential_path = outfile.strpath
-        responses.add_callback(responses.POST,
-                               self.fake_gatekeeper_url + '/token',
-                               callback=self.fake_gatekeeper.get_token,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url
-                               + '/v1/database/creds/postgresql_myschema_readonly',
-                               callback=self.fake_vault.get_db_creds,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
 
-        responses.add_callback(responses.POST,
-                               self.fake_vault_url + '/v1/auth/token/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-
-        responses.add_callback(responses.PUT,
-                               self.fake_vault_url + '/v1/sys/leases/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
+        if not os.path.exists(os.path.dirname(outfile.strpath)):
+            try:
+                os.makedirs(os.path.dirname(outfile.strpath))
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
 
         self.vaultkeeper.configs.entry_script = './test/normal_success.sh'
-        self.vaultkeeper.configs.refresh_interval = 3
+        self.vaultkeeper.configs.refresh_interval = 0.3
         status_code = self.vaultkeeper.run()
         assert status_code == 0
 
     @responses.activate
     def test_run_natural_failure(self, tmpdir):
+        self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+
         self.vaultkeeper.vault_client.token = '00000000-0000-0000-0000-000000000001'
         self.vaultkeeper.vault_secret = vault_token()
         outfile = tmpdir.join(self.vaultkeeper.configs.credential_path)
         self.vaultkeeper.configs.credential_path = outfile.strpath
-        responses.add_callback(responses.POST,
-                               self.fake_gatekeeper_url + '/token',
-                               callback=self.fake_gatekeeper.get_token,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url
-                               + '/v1/database/creds/postgresql_myschema_readonly',
-                               callback=self.fake_vault.get_db_creds,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
 
-        responses.add_callback(responses.POST,
-                               self.fake_vault_url + '/v1/auth/token/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
-        responses.add_callback(responses.GET,
-                               self.fake_vault_url + '/v1/auth/token/lookup-self',
-                               callback=self.fake_vault.lookup_self,
-                               content_type='application/json')
-
-        responses.add_callback(responses.PUT,
-                               self.fake_vault_url + '/v1/sys/leases/renew',
-                               callback=self.fake_vault.renew_lease,
-                               content_type='application/json')
+        if not os.path.exists(os.path.dirname(outfile.strpath)):
+            try:
+                os.makedirs(os.path.dirname(outfile.strpath))
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
 
         self.vaultkeeper.configs.entry_script = './test/normal_failure.sh'
-        self.vaultkeeper.configs.refresh_interval = 3
+        self.vaultkeeper.configs.refresh_interval = 0.3
         status_code = self.vaultkeeper.run()
-        assert status_code == 1
+        assert status_code == 3
