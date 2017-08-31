@@ -21,15 +21,17 @@ extras_require = {
 }
 
 dependency_links = [
-    'https://github.com/mracter/hvac/archive/b0811f0446760125baefea6383711035104e6df1.zip#egg=hvac-0.2.17+git.b817da4',
+    ('https://github.com/mracter/hvac/archive/'
+        'b0811f0446760125baefea6383711035104e6df1.zip'
+        '#egg=hvac-0.2.17+git.b817da4'),
 ]
 
 setup(
     name='vaultkeeper',
     version='0.0.1',
     description=('An agent that works with '
-                'vault-gatekeeper-mesos to '
-                'fetch and renew Vault credentials.'),
+                 'vault-gatekeeper-mesos to '
+                 'fetch and renew Vault credentials.'),
     long_description=readme,
     install_requires=install_requires,
     extras_require=extras_require,
@@ -40,4 +42,3 @@ setup(
     packages=find_packages(),
     dependency_links=dependency_links
 )
-
