@@ -1,4 +1,3 @@
-import sys
 import json
 import time
 
@@ -72,6 +71,9 @@ class Token(Secret):
     def add_secret(self, hvac_data):
         Secret.add_secret(self, hvac_data)
         self.token_value = hvac_data['data']['token']
+
+    def update_ttl(self, ttl):
+        self.lease_duration = ttl
 
     def printable(self):
         output = Secret.printable(self)
@@ -182,6 +184,7 @@ def printable_secrets(secrets):
     for name, secret in secrets.iteritems():
         output.update(secret.printable())
     return output
+
 
 classnames = {
     'database': Database,

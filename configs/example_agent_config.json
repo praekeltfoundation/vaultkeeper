@@ -1,7 +1,7 @@
 {
     "gatekeeper_addr": "https://my-gatekeeper-instance",
     "vault_addr": "https://my-vault-instance",
-    "entry_script": "/scripts/django-entrypoint.sh",
+    "entry_cmd": "sh /scripts/django-entrypoint.sh",
     "working_directory": "./../",
     "credential_path": "",
     "lease_path": "",

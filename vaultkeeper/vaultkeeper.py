@@ -1,9 +1,8 @@
 import logging
-import time
 import json
-import signal
 import os
 import sys
+import shlex
 import subprocess32 as subprocess
 from subprocess32 import TimeoutExpired
 from configparser import ConfigParser
@@ -101,40 +100,40 @@ class Vaultkeeper(object):
             response = self.get_cred(cred.vault_path)
             cred.add_secret(response)
 
-    def renew_token(self):
-        self.vault_client.renew_secret(self.vault_secret.lease_id,
-                                       self.configs.refresh_interval)
-        self.vault_secret.update_lease(self.vault_secret.lease_id,
-                                       self.configs.refresh_interval)
-        return self.vault_secret
+    def renew_token(self, ttl):
+        result = self.vault_client.renew_token(increment=ttl)
+        self.vault_secret.update_ttl(ttl)
+        return result
 
     def renew_lease(self, s):
         assert self.vault_client.is_authenticated()
-        self.vault_client.renew_secret(s.lease_id,
-                                       s.lease_duration)
+        result = self.vault_client.renew_secret(s.lease_id,
+                                                s.lease_duration)
         s.update_lease(s.lease_id, s.lease_duration)
-        return s
+        return result
 
     def renew_all(self):
         for entry in self.secrets.itervalues():
-            for s in entry.itervalues():
-                if s.renewable:
-                    self.renew_lease(s)
+            if entry.renewable:
+                self.renew_lease(entry)
 
     def run(self):
         self.get_wrapped_token()
-        self.logger.info('Written credentials to ' + self.configs.credential_path)
+        self.logger.info('Written credentials to '
+                         + self.configs.credential_path)
         self.get_creds()
         self.write_credentials()
-        app = subprocess.Popen(['sh', self.configs.entry_script],
+        args = shlex.split(self.configs.entry_cmd.encode(
+            'utf-8', errors='ignore'))
+        app = subprocess.Popen(args,
                                shell=False
                                )
         while True:
             try:
                 app.wait(timeout=self.configs.refresh_interval)
-            except TimeoutExpired as tex:
+            except TimeoutExpired:
                 self.logger.info('Renewing leases...')
-                self.renew_token()
+                self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()
             else:
                 return app.returncode

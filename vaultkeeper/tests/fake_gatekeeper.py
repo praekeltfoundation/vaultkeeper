@@ -1,6 +1,4 @@
 from fake_vault import FakeVault
-import responses
-import requests
 import json
 
 
@@ -36,3 +34,9 @@ class FakeGatekeeper(object):
             'token': '10000000-1000-1000-1000-100000000000'
         }
         return (200, headers, json.dumps(body))
+
+    def add_handlers(self, responses, fake_gatekeeper_url):
+        responses.add_callback(responses.POST,
+                               fake_gatekeeper_url + '/token',
+                               callback=self.get_token,
+                               content_type='application/json')

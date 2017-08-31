@@ -17,7 +17,7 @@ class ConfigParser(object):
     def load_data(self, data):
         self.vault_addr = data['vault_addr']
         self.gatekeeper_addr = data['gatekeeper_addr']
-        self.entry_script = data['entry_script']
+        self.entry_cmd = data['entry_cmd']
         self.working_dir = data['working_directory']
         self.credential_path = data['credential_path']
         self.lease_path = data['lease_path']
