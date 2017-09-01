@@ -1,13 +1,13 @@
 import responses
 import os
 import signal
+import threading
 
 from ..vaultkeeper import Vaultkeeper
 from ..vaultkeeper import ConfigParser
 from vaultkeeper import secret
 from fake_vault import FakeVault
 from fake_gatekeeper import FakeGatekeeper
-from multiprocessing import Process
 
 
 def configs():
@@ -144,7 +144,7 @@ class TestVaultkeeper(object):
         assert renew.lease_duration == 300
 
     @responses.activate
-    def test_run_natural_success(self, tmpdir):
+    def test_run_normal_success(self, tmpdir):
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
@@ -156,11 +156,12 @@ class TestVaultkeeper(object):
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_success.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
-        status_code = self.vaultkeeper.run()
+        self.vaultkeeper.start_subprocess()
+        status_code = self.vaultkeeper.watch_and_renew()
         assert status_code == 0
 
     @responses.activate
-    def test_run_natural_failure(self, tmpdir):
+    def test_run_normal_failure(self, tmpdir):
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
@@ -172,11 +173,17 @@ class TestVaultkeeper(object):
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
-        status_code = self.vaultkeeper.run()
+        self.vaultkeeper.start_subprocess()
+        status_code = self.vaultkeeper.watch_and_renew()
         assert status_code == 3
 
     @responses.activate
-    def test_run_unnatural_failure(self, tmpdir):
+    def test_run_abnormal_failure(self, tmpdir):
+        """
+        Vaultkeeper should clean up properly even if the subprocessed
+        application terminates in a way that is not implicated in its
+        natural lifecycle, ie. via SIGKILL.
+        """
         self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
 
@@ -186,13 +193,14 @@ class TestVaultkeeper(object):
         self.vaultkeeper.configs.credential_path = (
             tmpdir.join('./creds.txt').strpath)
 
-        self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
+        self.vaultkeeper.configs.entry_cmd = (
+            'python ./test/abnormal_failure.py')
         self.vaultkeeper.configs.refresh_interval = 0.1
-        p = Process(target=self.vaultkeeper.run())
-        p.start()
-        pid = p.pid
-        assert pid is not None
-        os.kill(pid, signal.SIGKILL)
-        p.join()
+        self.vaultkeeper.start_subprocess()
+        t = threading.Thread(target=self.vaultkeeper.watch_and_renew)
+        t.start()
+        spid = self.vaultkeeper.app.pid
+        os.kill(spid, signal.SIGKILL)
+        t.join()
         assert (self.vaultkeeper.vault_client.is_authenticated()
                 is False)
