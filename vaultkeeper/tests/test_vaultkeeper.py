@@ -1,10 +1,34 @@
 import responses
+import ctypes
+import os
+import signal
 
 from ..vaultkeeper import Vaultkeeper
 from ..vaultkeeper import ConfigParser
 from vaultkeeper import secret
 from fake_vault import FakeVault
 from fake_gatekeeper import FakeGatekeeper
+from multiprocessing import Process
+
+
+def terminate_thread(thread):
+    """Terminates a python thread from another thread.
+
+    :param thread: a threading.Thread instance
+    """
+    if not thread.isAlive():
+        return
+
+    exc = ctypes.py_object(SystemExit)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        ctypes.c_long(thread.ident), exc)
+    if res == 0:
+        raise ValueError("nonexistent thread id")
+    elif res > 1:
+        # """if it returns a number greater than one, you're in trouble,
+        # and you should call it again with exc=NULL to revert the effect"""
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
+        raise SystemError("PyThreadState_SetAsyncExc failed")
 
 
 def configs():
@@ -171,3 +195,25 @@ class TestVaultkeeper(object):
         self.vaultkeeper.configs.refresh_interval = 0.1
         status_code = self.vaultkeeper.run()
         assert status_code == 3
+
+    @responses.activate
+    def test_run_unnatural_failure(self, tmpdir):
+        self.fake_gatekeeper.add_handlers(responses, self.fake_gatekeeper_url)
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+
+        self.vaultkeeper.vault_client.token = (
+            '00000000-0000-0000-0000-000000000001')
+        self.vaultkeeper.vault_secret = vault_token()
+        self.vaultkeeper.configs.credential_path = (
+            tmpdir.join('./creds.txt').strpath)
+
+        self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
+        self.vaultkeeper.configs.refresh_interval = 0.1
+        p = Process(target=self.vaultkeeper.run())
+        p.start()
+        pid = p.pid
+        assert pid is not None
+        os.kill(pid, signal.SIGKILL)
+        p.join()
+        assert (self.vaultkeeper.vault_client.is_authenticated()
+                is False)

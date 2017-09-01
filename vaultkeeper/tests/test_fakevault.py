@@ -142,7 +142,7 @@ class TestFakeVault(object):
                             json=payload)
 
         # TODO check Vault response when expired
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
     @responses.activate
     def test_renew_self(self):
@@ -165,3 +165,31 @@ class TestFakeVault(object):
             "renewable": True,
           }
         }
+
+    @responses.activate
+    def test_lookup_self(self):
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+        headers = {
+            'X-Vault-Token': '00000000-0000-0000-0000-000000000001'
+        }
+        resp = requests.get(self.fake_vault_url + '/v1/auth/token/lookup-self',
+                            headers=headers)
+        assert resp.json() == {
+            'data': {
+                'policies': ['default', 'django-consumer']
+            }
+        }
+
+    @responses.activate
+    def test_revoke_self(self):
+        self.fake_vault.add_handlers(responses, self.fake_vault_url)
+        headers = {
+            'X-Vault-Token': '00000000-0000-0000-0000-000000000001'
+        }
+        resp = requests.put(self.fake_vault_url + '/v1/auth/token/revoke-self',
+                            headers=headers)
+        assert resp.status_code == 200
+
+        resp = requests.get(self.fake_vault_url + '/v1/auth/token/lookup-self',
+                            headers=headers)
+        assert resp.status_code == 403

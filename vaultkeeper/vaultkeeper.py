@@ -117,6 +117,9 @@ class Vaultkeeper(object):
             if entry.renewable:
                 self.renew_lease(entry)
 
+    def cleanup(self):
+        self.vault_client.revoke_self_token()
+
     def run(self):
         self.get_wrapped_token()
         self.logger.info('Written credentials to '
@@ -136,6 +139,7 @@ class Vaultkeeper(object):
                 self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()
             else:
+                self.cleanup()
                 return app.returncode
 
 
