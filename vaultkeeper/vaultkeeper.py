@@ -145,6 +145,10 @@ class Vaultkeeper(object):
                 self.cleanup()
                 return self.app.returncode
 
+    def run(self):
+        self.start_subprocess()
+        return self.watch_and_renew()
+
 
 def main():
     config = get_vaultkeeper_cfg()

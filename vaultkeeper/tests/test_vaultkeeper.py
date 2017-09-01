@@ -156,8 +156,7 @@ class TestVaultkeeper(object):
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_success.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
-        self.vaultkeeper.start_subprocess()
-        status_code = self.vaultkeeper.watch_and_renew()
+        status_code = self.vaultkeeper.run()
         assert status_code == 0
 
     @responses.activate
@@ -173,8 +172,7 @@ class TestVaultkeeper(object):
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
         self.vaultkeeper.configs.refresh_interval = 0.1
-        self.vaultkeeper.start_subprocess()
-        status_code = self.vaultkeeper.watch_and_renew()
+        status_code = self.vaultkeeper.run()
         assert status_code == 3
 
     @responses.activate
