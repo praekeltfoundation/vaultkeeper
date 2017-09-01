@@ -57,6 +57,7 @@ class Vaultkeeper(object):
         self.secrets = secrets
         self.taskid = taskid
         self.appname = appname
+        self.app = None
 
     def setup(self):
         self.vault_client = hvac.Client(url=self.configs.vault_addr)
@@ -117,7 +118,10 @@ class Vaultkeeper(object):
             if entry.renewable:
                 self.renew_lease(entry)
 
-    def run(self):
+    def cleanup(self):
+        self.vault_client.revoke_self_token()
+
+    def start_subprocess(self):
         self.get_wrapped_token()
         self.logger.info('Written credentials to '
                          + self.configs.credential_path)
@@ -125,18 +129,25 @@ class Vaultkeeper(object):
         self.write_credentials()
         args = shlex.split(self.configs.entry_cmd.encode(
             'utf-8', errors='ignore'))
-        app = subprocess.Popen(args,
-                               shell=False
-                               )
+        self.app = subprocess.Popen(args,
+                                    shell=False
+                                    )
+
+    def watch_and_renew(self):
         while True:
             try:
-                app.wait(timeout=self.configs.refresh_interval)
+                self.app.wait(timeout=self.configs.refresh_interval)
             except TimeoutExpired:
                 self.logger.info('Renewing leases...')
                 self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()
             else:
-                return app.returncode
+                self.cleanup()
+                return self.app.returncode
+
+    def run(self):
+        self.start_subprocess()
+        return self.watch_and_renew()
 
 
 def main():

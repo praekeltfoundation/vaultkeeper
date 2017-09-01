@@ -121,7 +121,7 @@ class FakeVault(object):
         path = urlparse(request.url).path[4:]
         action = 'read'
         if not self.token_authorised(client_token, path, action, params):
-            return (401, {}, {})
+            return (403, {}, {})
 
         headers = {'content-type': 'application/json'}
         data = {
@@ -149,7 +149,7 @@ class FakeVault(object):
         params = {}
         if not (self.token_authorised(client_token, path, action, params)
                 or client_token not in self.wrapped_tokens.keys()):
-            return (401, {}, {})
+            return (403, {}, {})
 
         unwrapped = self.wrapped_tokens[client_token]['data']
         headers = {'content-type': 'application/json'}
@@ -215,7 +215,7 @@ class FakeVault(object):
         params = {}
         if not self.token_authorised(client_token, path, action, params):
             # TODO: Proper errors
-            return (401, {}, {})
+            return (403, {}, {})
 
         body = {
             'lease_id':
@@ -247,7 +247,7 @@ class FakeVault(object):
         params = {}
         if not self.token_authorised(client_token, path, action, params):
             # TODO: Proper errors
-            return (401, {}, {})
+            return (403, {}, {})
 
         data = json.loads(request.body)
         increment = data['increment']
@@ -256,7 +256,7 @@ class FakeVault(object):
             body = {
                 'errors': ['lease not found or lease is not renewable']
             }
-            return (401, {}, json.dumps(body))
+            return (403, {}, json.dumps(body))
 
         self.tokens[client_token]['ttl'] = increment
         headers = {'content-type': 'application/json'}
@@ -278,7 +278,7 @@ class FakeVault(object):
         params = {}
         if not self.token_authorised(client_token, path, action, params):
             # TODO: Proper errors
-            return (401, {}, {})
+            return (403, {}, {})
 
         data = json.loads(request.body)
         leaseid = data['lease_id']
@@ -287,10 +287,10 @@ class FakeVault(object):
             body = {
                 'errors': ['lease not found or lease is not renewable']
             }
-            return (401, {}, json.dumps(body))
+            return (403, {}, json.dumps(body))
 
         if self.leases[leaseid]['expired']:
-            return (401, {}, {})
+            return (403, {}, {})
 
         self.leases[leaseid]['lease_duration'] = increment
         headers = {'content-type': 'application/json'}
@@ -308,7 +308,7 @@ class FakeVault(object):
         action = 'read'
         params = {}
         if not self.token_authorised(client_token, path, action, params):
-            return (401, {}, {})
+            return (403, {}, {})
 
         headers = {'content-type': 'application/json'}
         body = {
@@ -317,6 +317,18 @@ class FakeVault(object):
             }
         }
         return (200, headers, json.dumps(body))
+
+    def revoke_self(self, request):
+        header_data = request.headers
+        client_token = header_data['x-vault-token']
+        path = urlparse(request.url).path[4:]
+        action = 'update'
+        params = {}
+        if not self.token_authorised(client_token, path, action, params):
+            return (403, {}, {})
+
+        del self.tokens[client_token]
+        return (200, {}, {})
 
     def add_handlers(self, responses, fake_vault_url):
         responses.add_callback(responses.POST,
@@ -353,4 +365,9 @@ class FakeVault(object):
         responses.add_callback(responses.PUT,
                                fake_vault_url + '/v1/sys/leases/renew',
                                callback=self.renew_lease,
+                               content_type='application/json')
+
+        responses.add_callback(responses.PUT,
+                               fake_vault_url + '/v1/auth/token/revoke-self',
+                               callback=self.revoke_self,
                                content_type='application/json')
