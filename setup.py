@@ -40,5 +40,10 @@ setup(
     url='https://github.com/praekeltfoundation/vaultkeeper',
     license='BSD',
     packages=find_packages(),
-    dependency_links=dependency_links
+    dependency_links=dependency_links,
+    entry_points={
+        'console_scripts': [
+            'vaultkeeper = vaultkeeper:main'
+        ]
+    },
 )

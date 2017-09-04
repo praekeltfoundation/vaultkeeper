@@ -33,6 +33,7 @@ class Secret(object):
     def printable(self):
         return {
                 'id': self.name,
+                'backend': self.backend,
                 'endpoint': self.endpoint,
                 'vault_path': self.vault_path,
                 'policy': self.policy,
@@ -180,9 +181,9 @@ def parse_secret_data(data):
 
 
 def printable_secrets(secrets):
-    output = {}
+    output = []
     for name, secret in secrets.iteritems():
-        output.update(secret.printable())
+        output.append(secret.printable())
     return output
 
 

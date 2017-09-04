@@ -4,8 +4,6 @@ import json
 class ConfigParser(object):
     def __init__(self, config_path=None):
         self.config_path = config_path
-        self.vault_addr = None
-        self.gatekeeper_addr = None
         self.entry_script = None
         self.working_dir = None
         self.credential_path = None
@@ -15,8 +13,6 @@ class ConfigParser(object):
         self.renewal_grace = None
 
     def load_data(self, data):
-        self.vault_addr = data['vault_addr']
-        self.gatekeeper_addr = data['gatekeeper_addr']
         self.entry_cmd = data['entry_cmd']
         self.working_dir = data['working_directory']
         self.credential_path = data['credential_path']
