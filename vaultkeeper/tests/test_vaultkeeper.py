@@ -60,10 +60,12 @@ class TestVaultkeeper(object):
         self.configs = configs()
         self.secrets = secrets()
         self.vaultkeeper = Vaultkeeper(
-            self.configs,
-            self.secrets,
-            'purple-rain-486-ab24134bed3423f124937',
-            'purple-rain-486'
+            configs=self.configs,
+            secrets=self.secrets,
+            taskid='purple-rain-486-ab24134bed3423f124937',
+            appname='purple-rain-486',
+            vault_addr='https://test-vault-instance.net',
+            gatekeeper_addr='https://test-gatekeeper-instance.net'
         )
         self.vaultkeeper.setup()
         self.fake_vault = FakeVault()
@@ -99,8 +101,9 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.get_creds()
-        assert (secret.printable_secrets(self.vaultkeeper.secrets) == {
+        assert (secret.printable_secrets(self.vaultkeeper.secrets) == [{
             'id': 'creds1',
+            'backend': 'database',
             'endpoint': 'https://test-postgres-instance.net',
             'vault_path':
                 'database/creds/postgresql_myschema_readonly',
@@ -112,7 +115,7 @@ class TestVaultkeeper(object):
             'username': 'testuser1',
             'password': 'testpass1'
 
-        })
+        }])
 
     @responses.activate
     def test_renew_token(self):

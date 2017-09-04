@@ -39,12 +39,28 @@ def get_marathon_appname(env=os.environ):
     return appname
 
 
+def get_vault_addr(env=os.environ):
+    vault_addr = env['VAULT_ADDR']
+    if vault_addr is None:
+        raise KeyError('Could not retrieve Vault address.')
+    return vault_addr
+
+
+def get_gatekeeper_addr(env=os.environ):
+    gatekeeper_addr = env['GATEKEEPR_ADDR']
+    if gatekeeper_addr is None:
+        raise KeyError('Could not retrieve Gatekeeper address.')
+    return gatekeeper_addr
+
+
 class Vaultkeeper(object):
     logger = logging.getLogger(__name__)
 
     def __init__(self,
-                 configs, secrets,
-                 taskid, appname):
+                 configs=None, secrets=None,
+                 taskid=None, appname=None,
+                 vault_addr=None,
+                 gatekeeper_addr=None):
         """
         Create the Vaultkeeper service.
 
@@ -52,19 +68,23 @@ class Vaultkeeper(object):
         :param secrets: A nested dictionary of Secret objects.
         :param taskid: The Mesos task ID for this process' context.
         :param appname: The Marathon app name for this process' context.
+        :param vault_addr: The address for the Vault server.
+        :param gatekeeper_addr: The address for the Gatekeeper server.
         """
         self.configs = configs
         self.secrets = secrets
         self.taskid = taskid
         self.appname = appname
+        self.vault_addr = vault_addr
+        self.gatekeeper_addr = gatekeeper_addr
         self.app = None
 
     def setup(self):
-        self.vault_client = hvac.Client(url=self.configs.vault_addr)
+        self.vault_client = hvac.Client(url=self.vault_addr)
 
     def get_wrapped_token(self):
         payload = {'task_id': self.taskid}
-        r = requests.post(self.configs.gatekeeper_addr + '/token',
+        r = requests.post(self.gatekeeper_addr + '/token',
                           json=payload)
         response = r.json()
         if response['ok']:
@@ -155,13 +175,21 @@ def main():
     secrets = get_secrets_cfg()
     taskid = get_mesos_taskid()
     appname = get_marathon_appname()
+    vault_addr = get_vault_addr()
+    gatekeeper_addr = get_gatekeeper_addr()
 
     configs = ConfigParser(config_path=config)
     configs.load_configs()
 
     required_secrets = secret.parse_secret_file(secrets)
 
-    vaultkeeper = Vaultkeeper(configs, required_secrets, taskid, appname)
+    vaultkeeper = Vaultkeeper(configs=configs,
+                              secrets=required_secrets,
+                              taskid=taskid,
+                              appname=appname,
+                              vault_addr=vault_addr,
+                              gatekeeper_addr=gatekeeper_addr
+                              )
     vaultkeeper.setup()
     returncode = vaultkeeper.run()
     sys.exit(returncode)
