@@ -10,6 +10,7 @@ vaultkeeper
 Installing the Package
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Install the package for development with the following command:
+Install the package for development with the following commands:
 
-``pip install -e .[test] --process-dependency-links``
+``pip install -r requirements.txt``
+``pip install -e .[test]``

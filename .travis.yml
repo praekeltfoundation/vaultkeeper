@@ -5,6 +5,7 @@ cache: pip
 before_install:
   - pip install --upgrade pip
 install:
+  - pip install codecov
   - pip install -r dev-requirements.txt
 script:
   - pytest --cov

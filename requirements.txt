@@ -1,4 +1,1 @@
---find-links https://github.com/mracter/hvac/archive/b0811f0446760125baefea6383711035104e6df1.zip#egg=hvac-0.2.17+git.b817da4
-hvac==0.2.17+git.b817da4
-requests
-subprocess32
+git+https://github.com/mracter/hvac.git@b0811f0446760125baefea6383711035104e6df1#hvac-0.2.17-git.b817da4
