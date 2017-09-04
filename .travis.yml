@@ -5,9 +5,8 @@ cache: pip
 before_install:
   - pip install --upgrade pip
 install:
-  - pip install -e .[test] --process-dependency-links
   - pip install codecov
-  - pip install flake8
+  - pip install -r dev-requirements.txt
 script:
   - pytest --cov
   - flake8 .

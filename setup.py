@@ -7,7 +7,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 install_requires = [
-                    'hvac==0.2.17+git.b817da4',
+                    'hvac>=0.2.17',
                     'requests',
                     'subprocess32'
 ]
@@ -43,7 +43,7 @@ setup(
     dependency_links=dependency_links,
     entry_points={
         'console_scripts': [
-            'vaultkeeper = vaultkeeper:main'
+            'vaultkeeper = vaultkeeper.vaultkeeper:main'
         ]
     },
 )
