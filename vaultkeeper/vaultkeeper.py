@@ -47,7 +47,7 @@ def get_vault_addr(env=os.environ):
 
 
 def get_gatekeeper_addr(env=os.environ):
-    gatekeeper_addr = env['GATEKEEPR_ADDR']
+    gatekeeper_addr = env['GATEKEEPER_ADDR']
     if gatekeeper_addr is None:
         raise KeyError('Could not retrieve Gatekeeper address.')
     return gatekeeper_addr
