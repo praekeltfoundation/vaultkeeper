@@ -12,7 +12,7 @@ import requests
 
 
 def get_mesos_taskid(env=os.environ):
-    taskid = env['MESOS_TASKID']
+    taskid = env['MESOS_TASK_ID']
     if taskid is None:
         raise KeyError('Could not retrieve Mesos task ID.')
     return taskid
@@ -33,7 +33,7 @@ def get_secrets_cfg(env=os.environ):
 
 
 def get_marathon_appname(env=os.environ):
-    appname = env['MARATHON_APPNAME']
+    appname = env['MARATHON_APP_ID']
     if appname is None:
         raise KeyError('Could not retrieve Marathon app name.')
     return appname
