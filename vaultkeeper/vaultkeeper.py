@@ -103,6 +103,8 @@ class Vaultkeeper(object):
         if not self.vault_client.is_authenticated():
             raise RuntimeError('The service could not authenticate'
                                + 'to Vault with the unwrapped token.')
+        print('unwrap response: ')
+        print(response)
         return self.vault_client.token
 
     def write_credentials(self):
