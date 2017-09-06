@@ -111,6 +111,8 @@ class Vaultkeeper(object):
         data = secret.printable_secrets(self.secrets)
         with open(self.configs.credential_path, 'w') as outfile:
             json.dump(data, outfile)
+        print('written: ')
+        print(data)
 
     def get_cred(self, vault_path):
         if not self.vault_client.is_authenticated():
