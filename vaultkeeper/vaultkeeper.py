@@ -112,7 +112,7 @@ class Vaultkeeper(object):
 
     def get_cred(self, vault_path):
         if not self.vault_client.is_authenticated():
-            raise RuntimeError('The service could not authenticate'
+            raise RuntimeError('The service could not authenticate '
                                + 'to Vault to retrieve credentials.')
         return self.vault_client.read(vault_path)
 
@@ -143,6 +143,7 @@ class Vaultkeeper(object):
 
     def start_subprocess(self):
         self.get_wrapped_token()
+        self.unwrap_token(self.wrapped_token)
         self.logger.info('Written credentials to '
                          + self.configs.credential_path)
         self.get_creds()
