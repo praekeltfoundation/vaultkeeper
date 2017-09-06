@@ -140,8 +140,7 @@ class FakeVault(object):
         }
         return (200, headers, json.dumps(data))
 
-    # TODO: Check that this response is legit Vault emulation
-    def unwrap_token(self, request):
+    def unwrap_client_token(self, request):
         header_data = request.headers
         client_token = header_data['x-vault-token']
         path = urlparse(request.url).path[4:]
@@ -156,10 +155,15 @@ class FakeVault(object):
         data = {
             'request_id': '',
             'lease_id': '',
-            'lease_duration': 2592000,
-            'renewable': True,
-            'data': {
-                'token': unwrapped
+            'lease_duration': 0,
+            'renewable': False,
+            'auth': {
+                'client_token': unwrapped,
+                'accessor': '',
+                'policies': ['default', 'gatekeeper'],
+                'metadata': None,
+                'lease_duration': 2764800,
+                'renewable': True
             },
             'warnings': None
         }
@@ -349,7 +353,7 @@ class FakeVault(object):
 
         responses.add_callback(responses.POST,
                                fake_vault_url + '/v1/sys/wrapping/unwrap',
-                               callback=self.unwrap_token,
+                               callback=self.unwrap_client_token,
                                content_type='application/json')
 
         responses.add_callback(responses.POST,

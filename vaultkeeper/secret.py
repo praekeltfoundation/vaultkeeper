@@ -82,6 +82,28 @@ class Token(Secret):
         return output
 
 
+class UnwrappedToken(Secret):
+    def __init__(self, name, backend):
+        Secret.__init__(self, name, backend)
+        self.token_value = None
+
+    def constructor(self, **kwargs):
+        Secret.constructor(self, **kwargs)
+
+    def add_secret(self, hvac_data):
+        self.lease_duration = hvac_data['auth']['lease_duration']
+        self.renewable = hvac_data['auth']['renewable']
+        self.token_value = hvac_data['auth']['client_token']
+
+    def update_ttl(self, ttl):
+        self.lease_duration = ttl
+
+    def printable(self):
+        output = Secret.printable(self)
+        output['token_value'] = self.token_value
+        return output
+
+
 class Database(Secret):
     def __init__(self, name, backend):
         Secret.__init__(self, name, backend)
