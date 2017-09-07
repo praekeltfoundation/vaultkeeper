@@ -127,6 +127,28 @@ class Database(Secret):
         return output
 
 
+class PostgreSQL(Database):
+    def __init__(self, name, backend):
+        Database.__init__(self, name, backend)
+        self.username = None
+        self.password = None
+        self.schema = None
+
+    def constructor(self, **kwargs):
+        Database.constructor(self, **kwargs)
+        self.setrole = kwargs['set_role']
+
+    def add_secret(self, hvac_data):
+        Database.add_secret(self, hvac_data)
+        self.username = hvac_data['data']['username']
+        self.password = hvac_data['data']['password']
+
+    def printable(self):
+        output = Database.printable(self)
+        output['set_role'] = self.setrole
+        return output
+
+
 class RabbitMQ(Secret):
     def __init__(self, name, backend):
         Secret.__init__(self, name, backend)
@@ -211,7 +233,7 @@ def printable_secrets(secrets):
 
 classnames = {
     'database': Database,
-    'postgresql': Database,
+    'postgresql': PostgreSQL,
     'rabbitmq': RabbitMQ,
     'aws': AWS,
     'token': Token,
