@@ -96,7 +96,7 @@ class Vaultkeeper(object):
                            + response.text)
 
     def unwrap_token(self, wrapped_token):
-        self.vault_secret = secret.Token('vault_token', 'token')
+        self.vault_secret = secret.UnwrappedToken('vault_token', 'token')
         response = self.vault_client.unwrap(wrapped_token)
         self.vault_secret.add_secret(response)
         self.vault_client.token = self.vault_secret.token_value

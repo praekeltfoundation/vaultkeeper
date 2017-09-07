@@ -42,7 +42,7 @@ class TestFakeVault(object):
         }
 
     @responses.activate
-    def test_unwrap_token(self):
+    def test_unwrap_client_token(self):
         self.fake_vault.add_handlers(responses, self.fake_vault_url)
         headers = {
             'X-Vault-Token': '10000000-1000-1000-1000-100000000000'
@@ -50,17 +50,21 @@ class TestFakeVault(object):
 
         resp = requests.post(self.fake_vault_url + '/v1/sys/wrapping/unwrap',
                              headers=headers)
-
         assert resp.json() == {
-            'request_id': '',
-            'lease_id': '',
-            'lease_duration': 2592000,
-            'renewable': True,
-            'data': {
-                'token': '00000000-0000-0000-0000-000000000001'
-            },
-            'warnings': None
-        }
+                'request_id': '',
+                'lease_id': '',
+                'lease_duration': 0,
+                'renewable': False,
+                'auth': {
+                    'client_token': '00000000-0000-0000-0000-000000000001',
+                    'accessor': '',
+                    'policies': ['default', 'gatekeeper'],
+                    'metadata': None,
+                    'lease_duration': 2764800,
+                    'renewable': True
+                },
+                'warnings': None
+            }
 
     @responses.activate
     def test_authenticated(self):
