@@ -143,6 +143,7 @@ class Vaultkeeper(object):
                 self.renew_lease(entry)
 
     def cleanup(self):
+        print('Cleaning up...')
         self.vault_client.revoke_self_token()
 
     def start_subprocess(self):
@@ -164,8 +165,10 @@ class Vaultkeeper(object):
                 self.app.wait(timeout=self.configs.refresh_interval)
             except TimeoutExpired:
                 self.logger.info('Renewing leases...')
+                print('Renewing leases...')
                 self.renew_token(self.vault_secret.lease_duration)
                 self.renew_all()
+                print('Renewed')
             else:
                 self.cleanup()
                 return self.app.returncode
