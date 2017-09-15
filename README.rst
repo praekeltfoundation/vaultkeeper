@@ -7,23 +7,23 @@ vaultkeeper
 .. image:: https://img.shields.io/codecov/c/github/praekeltfoundation/vaultkeeper/develop.svg?style=flat-square
     :target: https://codecov.io/github/praekeltfoundation/vaultkeeper?branch=develop
 
-A Secure Introduction agent for applications consuming secrets from HashiCorp's Vault, designed to work with ```vault-gatekeeper-mesos``<https://github.com/ChannelMeter/vault-gatekeeper-mesos>`_.
-See Jeff Mitchell's `Secure Introduction at Scale<https://www.youtube.com/watch?v=R-jJXm3QGLQ>`_ for more background information on this project's architecture.
+A Secure Introduction agent for applications consuming secrets from HashiCorp's Vault, designed to work with `vault-gatekeeper-mesos <https://github.com/ChannelMeter/vault-gatekeeper-mesos>`_.
+See Jeff Mitchell's `Secure Introduction at Scale <https://www.youtube.com/watch?v=R-jJXm3QGLQ>`_ for more background information on this project's architecture.
 
 ``vaultkeeper`` couples the lifetime of your dynamically-generated secrets to that of your consumer applications,
 minimising the secrets' temporal attack surface. When used with Dockered applications, ``vaultkeeper``'s design ensures that your
 consumer app is only launched once its secrets are fetched and ready.
 
-``vaultkeeper`` supports the ``SET_ROLE`` operation `necessary to revoke dynamically-generated PostgreSQL credentials<https://github.com/jdelic/django-postgresql-setrole>`_.
+``vaultkeeper`` supports the ``SET_ROLE`` operation `necessary to revoke dynamically-generated PostgreSQL credentials <https://github.com/jdelic/django-postgresql-setrole>`_.
 
 Status
 -------------
 
 ``vaultkeeper`` is in PoC stage, and supports the following Vault secret backends:
 
-- `PostgreSQL Databases Plugin<https://www.vaultproject.io/api/secret/databases/postgresql.html>`_
-- `RabbitMQ<https://www.vaultproject.io/api/secret/rabbitmq/index.html>`_
-- `AWS<https://www.vaultproject.io/api/secret/aws/index.html>`_
+- `PostgreSQL Databases Plugin <https://www.vaultproject.io/api/secret/databases/postgresql.html>`_
+- `RabbitMQ <https://www.vaultproject.io/api/secret/rabbitmq/index.html>`_
+- `AWS <https://www.vaultproject.io/api/secret/aws/index.html>`_
 
 Prerequisites
 -------------
@@ -32,7 +32,7 @@ To use ``vaultkeeper``, you must have:
 
 A Vault instance configured and running.
 A ``vault-gatekeeper-mesos`` instance configured and running with your Vault instance and Mesos instance.
-An application that uses Vault credentials and is configured to consume ``vaultkeeper`` output, such as a Django app using ```django-vaultkeeper-adaptor``<https://github.com/praekeltfoundation/django-vaultkeeper-adaptor>`_.
+An application that uses Vault credentials and is configured to consume ``vaultkeeper`` output, such as a Django app using `django-vaultkeeper-adaptor <https://github.com/praekeltfoundation/django-vaultkeeper-adaptor>`_.
 
 Configuration
 -------------
@@ -48,16 +48,17 @@ Environment Variables
 vaultkeeper Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``vaultkeeper`` consumes its arguments from a JSON file.
+```vaultkeeper`` consumes its arguments from a JSON file.
 
-``{
-    "entry_cmd": "sh /scripts/django-entrypoint.sh",
-    "credential_path": "",
-    "refresh_interval": 30,
-    "lease_increment": 40,
-    "renewal_grace": 15
-}
-``
+.. code-block:: JSON
+
+    {
+        "entry_cmd": "sh /scripts/django-entrypoint.sh",
+        "credential_path": "",
+        "refresh_interval": 30,
+        "lease_increment": 40,
+        "renewal_grace": 15
+    }
 
 ``entry_cmd`` - The entrypoint for the application to be managed by ``vaultkeeper``. This can be an arbitrary shell command.
 ``credential_path`` - ``vaultkeeper``'s output location for fetched credentials.
@@ -76,23 +77,25 @@ Deployment
 ``vaultkeeper`` outputs secrets as JSON. Your application needs to be able to parse and consume this output.
 For Django applications, ``django-vaultkeeper-adaptor`` is recommended. An example secret file containing PostgreSQL and RabbitMQ credentials is shown below:
 
-``[{
-        "id": "default",
-        "backend": "postgresql",
-        "endpoint": "0.0.0.0:5432/mydb",
-        "vault_path": "database/creds/psql-rw",
-        "schema": "public",
-        "policy": "psql-rw",
-        "set_role": "app_owner",
-    },
-    {
-        "id": "broker1",
-        "backend": "rabbitmq",
-        "endpoint": "0.0.0.0:5672/myvhost",
-        "vault_path": "/rabbitmq/creds/ampq-worker",
-        "vhost": "myvhost",
-        "policy": "ampq-worker"
-  }]``
+.. code-block:: JSON
+
+    [{
+            "id": "default",
+            "backend": "postgresql",
+            "endpoint": "0.0.0.0:5432/mydb",
+            "vault_path": "database/creds/psql-rw",
+            "schema": "public",
+            "policy": "psql-rw",
+            "set_role": "app_owner",
+        },
+        {
+            "id": "broker1",
+            "backend": "rabbitmq",
+            "endpoint": "0.0.0.0:5672/myvhost",
+            "vault_path": "/rabbitmq/creds/ampq-worker",
+            "vhost": "myvhost",
+            "policy": "ampq-worker"
+    }]
 
 Common base parameters in the secrets configuration file:
 
