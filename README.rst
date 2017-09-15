@@ -105,7 +105,7 @@ Deployment
 
 | ``vaultkeeper`` outputs secrets as JSON. Your application needs to be able to parse and consume this output.
 For Django applications, ``django-vaultkeeper-adaptor`` is recommended.
-|
+| 
 | You can supply the ``vaultkeeper`` configuration file with the entrypoint for the application you wish to manage.
 Ensure that your consumer application knows where ``vaultkeeper``'s secret output will be stored.
 
