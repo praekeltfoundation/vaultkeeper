@@ -115,7 +115,7 @@ Ensure that your consumer application knows where ``vaultkeeper``'s secret outpu
 Installing the Package
 ----------------------
 
-Clone this project and install the package from source with the following commands in the root directory of the repository:
+| Clone this project and install the package from source with the following commands in the root directory of the repository:
 
 | ``$ pip install -r requirements.txt``
 |
