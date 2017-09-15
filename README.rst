@@ -50,7 +50,7 @@ Environment Variables
 vaultkeeper Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-```vaultkeeper`` consumes its arguments from a JSON file.
+``vaultkeeper`` consumes its arguments from a JSON file:
 
 .. code-block:: JSON
 
@@ -119,7 +119,7 @@ Clone this project and install the package from source with the following comman
 
 | ``pip install -r requirements.txt``
 
-Install the package for development with the following commands:
+| Install the package for development with the following commands:
 
 | ``pip install -r requirements.txt``
 | ``pip install -e .[test]``
