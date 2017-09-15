@@ -117,9 +117,10 @@ Installing the Package
 
 Clone this project and install the package from source with the following commands in the root directory of the repository:
 
-| ``pip install -r requirements.txt``
+| ``$ pip install -r requirements.txt``
+|
 
 | Install the package for development with the following commands:
 
-| ``pip install -r requirements.txt``
-| ``pip install -e .[test]``
+| ``$ pip install -r requirements.txt``
+| ``$ pip install -e .[test]``
