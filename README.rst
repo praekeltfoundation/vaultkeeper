@@ -26,11 +26,24 @@ Status
 Prerequisites
 -------------
 
-| To use ``vaultkeeper``, you must have:
+| To use ``vaultkeeper`` successfully, you must have:
 
 - A Vault instance configured and running.
 - A ``vault-gatekeeper-mesos`` instance configured and running with your Vault instance and Mesos instance.
 - An application that uses Vault credentials and is configured to consume ``vaultkeeper`` output, such as a Django app using `django-vaultkeeper-adaptor <https://github.com/praekeltfoundation/django-vaultkeeper-adaptor>`_.
+
+Installing the Package
+----------------------
+
+| Clone this project and install the package from source with the following commands in the root directory of the repository:
+
+| ``$ pip install -r requirements.txt``
+|
+
+| Install the package for development with the following commands:
+
+| ``$ pip install -r requirements.txt``
+| ``$ pip install -e .[test]``
 
 Configuration
 -------------
@@ -105,18 +118,7 @@ Deployment
 
 | ``vaultkeeper`` outputs secrets as JSON. Your application needs to be able to parse and consume this output. For Django applications, ``django-vaultkeeper-adaptor`` is recommended.
 |
-| You can supply the ``vaultkeeper`` configuration file with the entrypoint for the application you wish to manage. Ensure that your consumer application knows where ``vaultkeeper``'s secret output will be stored.
+| Supply the ``vaultkeeper`` configuration file with the entrypoint for the application you wish to manage. Ensure that your consumer application knows where ``vaultkeeper``'s secret output will be stored.
+| Thereafter, instead of running your application's conventional entrypoint script, run ``vaultkeeper`` instead:
 
-
-Installing the Package
-----------------------
-
-| Clone this project and install the package from source with the following commands in the root directory of the repository:
-
-| ``$ pip install -r requirements.txt``
-|
-
-| Install the package for development with the following commands:
-
-| ``$ pip install -r requirements.txt``
-| ``$ pip install -e .[test]``
+| ``$ vaultkeeper``
