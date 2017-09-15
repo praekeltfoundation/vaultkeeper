@@ -7,7 +7,9 @@ vaultkeeper
 .. image:: https://img.shields.io/codecov/c/github/praekeltfoundation/vaultkeeper/develop.svg?style=flat-square
     :target: https://codecov.io/github/praekeltfoundation/vaultkeeper?branch=develop
 
+
 A Secure Introduction agent for applications consuming secrets from HashiCorp's Vault, designed to work with `vault-gatekeeper-mesos <https://github.com/ChannelMeter/vault-gatekeeper-mesos>`_.
+
 See Jeff Mitchell's `Secure Introduction at Scale <https://www.youtube.com/watch?v=R-jJXm3QGLQ>`_ for more background information on this project's architecture.
 
 ``vaultkeeper`` couples the lifetime of your dynamically-generated secrets to that of your consumer applications,
@@ -40,10 +42,10 @@ Configuration
 Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~
 
-``VAULTKEEPER_CONFIG`` - The path to the agent configuration file for this app instance.
-``SECRETS_CONFIG`` - The path to the configuration file containing specifications on the secrets to fetch from Vault.
-``MESOS_TASK_ID`` - The Mesos task ID assigned to this task, which should be automatically populated by Mesos.
-``MARATHON_APP_ID`` - The Marathon app ID assigned to this task, which should be automatically populated by Marathon.
+| ``VAULTKEEPER_CONFIG`` - The path to the agent configuration file for this app instance.
+| ``SECRETS_CONFIG`` - The path to the configuration file containing specifications on the secrets to fetch from Vault.
+| ``MESOS_TASK_ID`` - The Mesos task ID assigned to this task, which should be automatically populated by Mesos.
+| ``MARATHON_APP_ID`` - The Marathon app ID assigned to this task, which should be automatically populated by Marathon.
 
 vaultkeeper Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,11 +62,11 @@ vaultkeeper Configuration
         "renewal_grace": 15
     }
 
-``entry_cmd`` - The entrypoint for the application to be managed by ``vaultkeeper``. This can be an arbitrary shell command.
-``credential_path`` - ``vaultkeeper``'s output location for fetched credentials.
-``refresh_interval`` - Interval (in seconds) after which to renew all leases.
-``lease_increment`` - Increment (in seconds) by which to extend a lease if it is due for renewal.
-``renewal_grace`` - Time (in seconds) before a lease's expiry under which to renew the lease.
+| ``entry_cmd`` - The entrypoint for the application to be managed by ``vaultkeeper``. This can be an arbitrary shell command.
+| ``credential_path`` - ``vaultkeeper``'s output location for fetched credentials.
+| ``refresh_interval`` - Interval (in seconds) after which to renew all leases.
+| ``lease_increment`` - Increment (in seconds) by which to extend a lease if it is due for renewal.
+| ``renewal_grace`` - Time (in seconds) before a lease's expiry under which to renew the lease.
 
 secrets Configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -99,11 +101,11 @@ For Django applications, ``django-vaultkeeper-adaptor`` is recommended. An examp
 
 Common base parameters in the secrets configuration file:
 
-``id`` - The logical identifier for this secret. Identifiers must be unique within each consumer instance.
-``backend`` - The Vault secret backend of this secret.
-``endpoint`` - The endpoint for the resource. This should be a socket address with the applicable namespace (ie. vhost, database name) appended.
-``vault_path`` - The Vault path from which the secret should be read.
-``policy`` - The resource policy, as designated on Vault, attached to this secret.
+| ``id`` - The logical identifier for this secret. Identifiers must be unique within each consumer instance.
+| ``backend`` - The Vault secret backend of this secret.
+| ``endpoint`` - The endpoint for the resource. This should be a socket address with the applicable namespace (ie. vhost, database name) appended.
+| ``vault_path`` - The Vault path from which the secret should be read.
+| ``policy`` - The resource policy, as designated on Vault, attached to this secret.
 
 You can supply the ``vaultkeeper`` configuration file with the entrypoint for the application you wish to manage.
 Ensure that your consumer application knows where ``vaultkeeper``'s secret output will be stored.
@@ -114,9 +116,9 @@ Installing the Package
 
 Clone this project and install the package from source with the following commands in the root directory of the repository:
 
-``pip install -r requirements.txt``
+| ``pip install -r requirements.txt``
 
 Install the package for development with the following commands:
 
-``pip install -r requirements.txt``
-``pip install -e .[test]``
+| ``pip install -r requirements.txt``
+| ``pip install -e .[test]``
