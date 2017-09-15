@@ -9,13 +9,11 @@ vaultkeeper
 
 |
 | A Secure Introduction agent for applications consuming secrets from HashiCorp's Vault, designed to work with `vault-gatekeeper-mesos <https://github.com/ChannelMeter/vault-gatekeeper-mesos>`_.
-
-| See Jeff Mitchell's `Secure Introduction at Scale <https://www.youtube.com/watch?v=R-jJXm3QGLQ>`_ for more background information on this project's architecture.
-
+See Jeff Mitchell's `Secure Introduction at Scale <https://www.youtube.com/watch?v=R-jJXm3QGLQ>`_ for more background information on this project's architecture.
 | ``vaultkeeper`` couples the lifetime of your dynamically-generated secrets to that of your consumer applications,
 minimising the secrets' temporal attack surface. When used with Dockered applications, ``vaultkeeper``'s design ensures that your
 consumer app is only launched once its secrets are fetched and ready.
-
+|
 | ``vaultkeeper`` supports the ``SET_ROLE`` operation `necessary to revoke dynamically-generated PostgreSQL credentials <https://github.com/jdelic/django-postgresql-setrole>`_.
 
 Status
@@ -107,7 +105,7 @@ Deployment
 
 | ``vaultkeeper`` outputs secrets as JSON. Your application needs to be able to parse and consume this output.
 For Django applications, ``django-vaultkeeper-adaptor`` is recommended.
-
+|
 | You can supply the ``vaultkeeper`` configuration file with the entrypoint for the application you wish to manage.
 Ensure that your consumer application knows where ``vaultkeeper``'s secret output will be stored.
 
