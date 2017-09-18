@@ -15,10 +15,7 @@ def configs():
         'gatekeeper_addr': 'https://test-gatekeeper-instance.net',
         'vault_addr': 'https://test-vault-instance.net',
         'entry_cmd': '',
-        'working_directory': '',
         'credential_path': '',
-        'lease_path': '',
-        'token_refresh': 300,
         'refresh_interval': 30,
         'renewal_grace': 15,
     }
