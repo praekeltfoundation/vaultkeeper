@@ -26,10 +26,10 @@ def get_vaultkeeper_cfg(env=os.environ):
 
 
 def get_secrets_cfg(env=os.environ):
-    path = env['SECRETS_CONFIG']
-    if path is None:
+    config = env['SECRETS_CONFIG']
+    if config is None:
         raise KeyError('Could not retrieve Secrets configuration path.')
-    return path
+    return config
 
 
 def get_marathon_appname(env=os.environ):
@@ -182,7 +182,7 @@ def main():
     configs = ConfigParser(config_path=config)
     configs.load_configs()
 
-    required_secrets = secret.parse_secret_file(secrets)
+    required_secrets = secret.parse_secret_data(secrets)
 
     vaultkeeper = Vaultkeeper(configs=configs,
                               secrets=required_secrets,
