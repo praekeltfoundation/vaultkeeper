@@ -107,7 +107,7 @@ class Vaultkeeper(object):
 
     def write_credentials(self):
         data = secret.printable_secrets(self.secrets)
-        with open(self.configs.credential_path, 'w') as outfile:
+        with open(self.configs.output_path, 'w') as outfile:
             json.dump(data, outfile)
 
     def get_cred(self, vault_path):
@@ -145,7 +145,7 @@ class Vaultkeeper(object):
         self.get_wrapped_token()
         self.unwrap_token(self.wrapped_token)
         self.logger.info('Written credentials to '
-                         + self.configs.credential_path)
+                         + self.configs.output_path)
         self.get_creds()
         self.write_credentials()
         args = shlex.split(self.configs.entry_cmd.encode(
