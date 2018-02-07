@@ -21,14 +21,16 @@ def get_mesos_taskid(env=os.environ):
 def get_vaultkeeper_cfg(env=os.environ):
     config = env['VAULTKEEPER_CONFIG']
     if config is None:
-        raise KeyError('Could not retrieve Vaultkeeper agent configuration from the environment.')
+        raise KeyError('Could not retrieve Vaultkeeper '
+                       + 'agent configuration from the environment.')
     return config
 
 
 def get_secrets_cfg(env=os.environ):
     config = env['VAULT_SECRETS']
     if config is None:
-        raise KeyError('Could not retrieve Vault secret configuration from the environment.')
+        raise KeyError('Could not retrieve Vault secret configuration '
+                       + 'from the environment.')
     return config
 
 
