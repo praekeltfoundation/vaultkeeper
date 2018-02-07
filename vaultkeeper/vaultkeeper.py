@@ -26,10 +26,10 @@ def get_vaultkeeper_cfg(env=os.environ):
 
 
 def get_secrets_cfg(env=os.environ):
-    path = env['SECRETS_CONFIG']
-    if path is None:
+    config = env['SECRETS_CONFIG']
+    if config is None:
         raise KeyError('Could not retrieve Secrets configuration path.')
-    return path
+    return config
 
 
 def get_marathon_appname(env=os.environ):
@@ -107,7 +107,7 @@ class Vaultkeeper(object):
 
     def write_credentials(self):
         data = secret.printable_secrets(self.secrets)
-        with open(self.configs.credential_path, 'w') as outfile:
+        with open(self.configs.output_path, 'w') as outfile:
             json.dump(data, outfile)
 
     def get_cred(self, vault_path):
@@ -145,7 +145,7 @@ class Vaultkeeper(object):
         self.get_wrapped_token()
         self.unwrap_token(self.wrapped_token)
         self.logger.info('Written credentials to '
-                         + self.configs.credential_path)
+                         + self.configs.output_path)
         self.get_creds()
         self.write_credentials()
         args = shlex.split(self.configs.entry_cmd.encode(
@@ -182,7 +182,7 @@ def main():
     configs = ConfigParser(config_path=config)
     configs.load_configs()
 
-    required_secrets = secret.parse_secret_file(secrets)
+    required_secrets = secret.parse_secret_data(secrets)
 
     vaultkeeper = Vaultkeeper(configs=configs,
                               secrets=required_secrets,

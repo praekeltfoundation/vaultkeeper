@@ -65,14 +65,14 @@ vaultkeeper Configuration
 
     {
         "entry_cmd": "sh /scripts/django-entrypoint.sh",
-        "credential_path": "",
+        "output_path": "",
         "refresh_interval": 30,
         "lease_increment": 40,
         "renewal_grace": 15
     }
 
 | ``entry_cmd`` - The entrypoint for the application to be managed by ``vaultkeeper``. This can be an arbitrary shell command.
-| ``credential_path`` - ``vaultkeeper``'s output location for fetched credentials.
+| ``output_path`` - ``vaultkeeper``'s output location for fetched credentials.
 | ``refresh_interval`` - Interval (in seconds) after which to renew all leases.
 | ``lease_increment`` - Increment (in seconds) by which to extend a lease if it is due for renewal.
 | ``renewal_grace`` - Time (in seconds) before a lease's expiry under which to renew the lease.
