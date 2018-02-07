@@ -51,15 +51,15 @@ Configuration
 Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~
 
-| ``VAULTKEEPER_CONFIG`` - The path to the agent configuration file for this app instance.
-| ``SECRETS_CONFIG`` - The path to the configuration file containing specifications on the secrets to fetch from Vault.
+| ``VAULTKEEPER_CONFIG`` - A JSON string in ``vaultkeeper`` config format. See ``configs/example_agent_config.json``
+| ``VAULT_SECRETS`` - A JSON string in ``vaultkeeper`` secrets format. See ``configs/example_consumer_config.json``.
 | ``MESOS_TASK_ID`` - The Mesos task ID assigned to this task, which should be automatically populated by Mesos.
 | ``MARATHON_APP_ID`` - The Marathon app ID assigned to this task, which should be automatically populated by Marathon.
 
 vaultkeeper Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``vaultkeeper`` consumes its arguments from a JSON file:
+``vaultkeeper`` consumes its arguments from a JSON environment variable:
 
 .. code-block:: JSON
 

@@ -7,7 +7,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 install_requires = [
-                    'hvac>=0.2.17',
+                    'hvac==0.2.17',
                     'requests',
                     'subprocess32'
 ]

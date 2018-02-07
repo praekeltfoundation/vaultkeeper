@@ -19,16 +19,18 @@ def get_mesos_taskid(env=os.environ):
 
 
 def get_vaultkeeper_cfg(env=os.environ):
-    path = env['VAULTKEEPER_CONFIG']
-    if path is None:
-        raise KeyError('Could not retrieve Vaultkeeper config path.')
-    return path
+    config = env['VAULTKEEPER_CONFIG']
+    if config is None:
+        raise KeyError('Could not retrieve Vaultkeeper '
+                       + 'agent configuration from the environment.')
+    return config
 
 
 def get_secrets_cfg(env=os.environ):
-    config = env['SECRETS_CONFIG']
+    config = env['VAULT_SECRETS']
     if config is None:
-        raise KeyError('Could not retrieve Secrets configuration path.')
+        raise KeyError('Could not retrieve Vault secret configuration '
+                       + 'from the environment.')
     return config
 
 
@@ -172,7 +174,7 @@ class Vaultkeeper(object):
 
 
 def main():
-    config = get_vaultkeeper_cfg()
+    config = json.loads(get_vaultkeeper_cfg())
     secrets = get_secrets_cfg()
     taskid = get_mesos_taskid()
     appname = get_marathon_appname()
@@ -182,7 +184,7 @@ def main():
     configs = ConfigParser(config_path=config)
     configs.load_configs()
 
-    required_secrets = secret.parse_secret_data(secrets)
+    required_secrets = secret.parse_secret_data(json.loads(secrets))
 
     vaultkeeper = Vaultkeeper(configs=configs,
                               secrets=required_secrets,
