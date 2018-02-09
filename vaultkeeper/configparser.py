@@ -16,5 +16,5 @@ class ConfigParser(object):
         self.renewal_grace = data['renewal_grace']
 
     def load_configs(self):
-        data = json.load(self.config)
+        data = json.loads(self.config)
         self.load_data(data)
