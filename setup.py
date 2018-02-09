@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='vaultkeeper',
-    version='0.0.1',
+    version='0.1.0',
     description='A daemon that fetches and renews '
                 + 'Vault credentials for Gunicorn-on-Docker'
                 + 'Django applications',
