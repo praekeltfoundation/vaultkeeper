@@ -95,7 +95,7 @@ class Vaultkeeper(object):
         raise RuntimeError('The service encountered an error '
                            + 'retrieving its wrapped token '
                            + 'from Gatekeeper: '
-                           + response['text'])
+                           + response['error'])
 
     def unwrap_token(self, wrapped_token):
         self.vault_secret = secret.UnwrappedToken('vault_token', 'token')
