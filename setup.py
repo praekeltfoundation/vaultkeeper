@@ -28,7 +28,7 @@ dependency_links = [
 
 setup(
     name='vaultkeeper',
-    version='0.1.5',
+    version='0.1.6',
     description=('An agent that works with '
                  'vault-gatekeeper-mesos to '
                  'fetch and renew Vault credentials.'),
