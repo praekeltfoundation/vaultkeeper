@@ -2,8 +2,8 @@ import json
 
 
 class ConfigParser(object):
-    def __init__(self, config_path=None):
-        self.config_path = config_path
+    def __init__(self, config=None):
+        self.config = config
         self.entry_script = None
         self.output_path = None
         self.refresh_interval = None
@@ -16,6 +16,6 @@ class ConfigParser(object):
         self.renewal_grace = data['renewal_grace']
 
     def load_configs(self):
-        with open(self.config_path) as agent_config:
+        with open(self.config) as agent_config:
             data = json.load(agent_config)
         self.load_data(data)
