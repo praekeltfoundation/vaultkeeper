@@ -181,7 +181,7 @@ def main():
     vault_addr = get_vault_addr()
     gatekeeper_addr = get_gatekeeper_addr()
 
-    configs = ConfigParser(config_path=config)
+    configs = ConfigParser(config=config)
     configs.load_configs()
 
     required_secrets = secret.parse_secret_data(json.loads(secrets))

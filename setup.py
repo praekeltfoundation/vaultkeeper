@@ -28,10 +28,10 @@ dependency_links = [
 
 setup(
     name='vaultkeeper',
-    version='0.1.1',
-    description='A daemon that fetches and renews '
-                + 'Vault credentials for Gunicorn-on-Docker'
-                + 'Django applications',
+    version='0.1.2',
+    description=('An agent that works with '
+                 'vault-gatekeeper-mesos to '
+                 'fetch and renew Vault credentials.'),
     long_description=readme,
     install_requires=install_requires,
     extras_require=extras_require,
