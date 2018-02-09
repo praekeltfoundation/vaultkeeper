@@ -174,7 +174,7 @@ class Vaultkeeper(object):
 
 
 def main():
-    config = json.loads(get_vaultkeeper_cfg())
+    config = get_vaultkeeper_cfg()
     secrets = get_secrets_cfg()
     taskid = get_mesos_taskid()
     appname = get_marathon_appname()
