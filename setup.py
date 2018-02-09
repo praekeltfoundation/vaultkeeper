@@ -28,7 +28,7 @@ dependency_links = [
 
 setup(
     name='vaultkeeper',
-    version='0.1.0',
+    version='0.1.1',
     description='A daemon that fetches and renews '
                 + 'Vault credentials for Gunicorn-on-Docker'
                 + 'Django applications',
