@@ -1,6 +1,1 @@
-setuptools==36.2.7
-hvac==0.2.17
-pytest==3.2.1
-requests==2.18.4
-responses==0.7.0
-python_daemon==2.1.2
+git+https://github.com/mracter/hvac.git@b0811f0446760125baefea6383711035104e6df1#hvac-0.2.17-git.b817da4

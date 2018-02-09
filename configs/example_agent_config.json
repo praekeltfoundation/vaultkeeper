@@ -1,12 +1,8 @@
 {
-    "gatekeeper_addr": "https://my-gatekeeper-instance",
-    "vault_addr": "https://my-vault-instance",
-    "entry_script": "/scripts/django-entrypoint.sh",
+    "entry_cmd": "sh /scripts/django-entrypoint.sh",
     "working_directory": "./../",
-    "log_path": "./../logs/testlog.log",
-    "credential_path": "",
-    "lease_path": "",
-    "token_refresh": 300,
+    "output_path": "",
+    "refresh_interval": 30,
     "lease_increment": 2000,
     "renewal_grace": 15
 }

@@ -1,0 +1,3 @@
+git+https://github.com/mracter/hvac.git@b0811f0446760125baefea6383711035104e6df1#hvac-0.2.17-git.b817da4
+flake8
+-e .[test]

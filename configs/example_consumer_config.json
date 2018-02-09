@@ -1,11 +1,12 @@
 [
   {
     "id": "creds1",
-    "backend": "database",
+    "backend": "postgresql",
     "endpoint": "path/to/instance",
     "vault_path": "vault/path",
     "schema": "myschema",
-    "policy": "read"
+    "policy": "read",
+    "set_role": "database_owner"
   },
 
   {
