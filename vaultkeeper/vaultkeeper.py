@@ -85,7 +85,7 @@ class Vaultkeeper(object):
         self.vault_client = hvac.Client(url=self.vault_addr)
 
     def get_wrapped_token(self):
-        print('gonna fetch that token now')
+        print('inside vaultkeeper.get_wrapped_token(). gonna fetch that token now')
         payload = {'task_id': self.taskid}
         r = requests.post(self.gatekeeper_addr + '/token',
                           json=payload)
@@ -152,6 +152,7 @@ class Vaultkeeper(object):
         self.vault_client.revoke_self_token()
 
     def start_subprocess(self):
+        print('inside vaultkeeper.start_subprocess(). gonna call vaultkeeper.get_wrapped_token()')
         self.get_wrapped_token()
         self.unwrap_token(self.wrapped_token)
         self.logger.info('Written credentials to '
@@ -179,11 +180,13 @@ class Vaultkeeper(object):
                 return self.app.returncode
 
     def run(self):
+        print('inside vaultkeeper.run()')
         self.start_subprocess()
         return self.watch_and_renew()
 
 
 def main():
+    print('inside main(). executing')
     config = get_vaultkeeper_cfg()
     secrets = get_secrets_cfg()
     taskid = get_mesos_taskid()
@@ -196,6 +199,7 @@ def main():
 
     required_secrets = secret.parse_secret_data(json.loads(secrets))
 
+    print('gonna instantiate vaultkeeper now')
     vaultkeeper = Vaultkeeper(configs=configs,
                               secrets=required_secrets,
                               taskid=taskid,
@@ -203,10 +207,13 @@ def main():
                               vault_addr=vault_addr,
                               gatekeeper_addr=gatekeeper_addr
                               )
+    print('gonna call vaultkeeper.setup()')
     vaultkeeper.setup()
+    print('gonna call vaultkeeper.run()')
     returncode = vaultkeeper.run()
     sys.exit(returncode)
 
 
 if __name__ == '__main__':
+    print('in main module. gonna call main() now')
     main()
