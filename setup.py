@@ -7,7 +7,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 install_requires = [
-                    'hvac>=0.2.17',
+                    'hvac==0.2.17',
                     'requests',
                     'subprocess32'
 ]
@@ -28,7 +28,7 @@ dependency_links = [
 
 setup(
     name='vaultkeeper',
-    version='0.0.1',
+    version='0.1.7',
     description=('An agent that works with '
                  'vault-gatekeeper-mesos to '
                  'fetch and renew Vault credentials.'),

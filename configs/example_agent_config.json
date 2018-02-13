@@ -1,9 +1,8 @@
 {
     "entry_cmd": "sh /scripts/django-entrypoint.sh",
     "working_directory": "./../",
-    "credential_path": "",
-    "lease_path": "",
-    "token_refresh": 300,
+    "output_path": "",
+    "refresh_interval": 30,
     "lease_increment": 2000,
     "renewal_grace": 15
 }

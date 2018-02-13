@@ -19,17 +19,19 @@ def get_mesos_taskid(env=os.environ):
 
 
 def get_vaultkeeper_cfg(env=os.environ):
-    path = env['VAULTKEEPER_CONFIG']
-    if path is None:
-        raise KeyError('Could not retrieve Vaultkeeper config path.')
-    return path
+    config = env['VAULTKEEPER_CONFIG']
+    if config is None:
+        raise KeyError('Could not retrieve Vaultkeeper '
+                       + 'agent configuration from the environment.')
+    return config
 
 
 def get_secrets_cfg(env=os.environ):
-    path = env['SECRETS_CONFIG']
-    if path is None:
-        raise KeyError('Could not retrieve Secrets configuration path.')
-    return path
+    config = env['VAULT_SECRETS']
+    if config is None:
+        raise KeyError('Could not retrieve Vault secret configuration '
+                       + 'from the environment.')
+    return config
 
 
 def get_marathon_appname(env=os.environ):
@@ -93,7 +95,7 @@ class Vaultkeeper(object):
         raise RuntimeError('The service encountered an error '
                            + 'retrieving its wrapped token '
                            + 'from Gatekeeper: '
-                           + response.text)
+                           + response['error'])
 
     def unwrap_token(self, wrapped_token):
         self.vault_secret = secret.UnwrappedToken('vault_token', 'token')
@@ -109,7 +111,7 @@ class Vaultkeeper(object):
 
     def write_credentials(self):
         data = secret.printable_secrets(self.secrets)
-        with open(self.configs.credential_path, 'w') as outfile:
+        with open(self.configs.output_path, 'w') as outfile:
             json.dump(data, outfile)
         print('written: ')
         print(data)
@@ -150,7 +152,7 @@ class Vaultkeeper(object):
         self.get_wrapped_token()
         self.unwrap_token(self.wrapped_token)
         self.logger.info('Written credentials to '
-                         + self.configs.credential_path)
+                         + self.configs.output_path)
         self.get_creds()
         self.write_credentials()
         args = shlex.split(self.configs.entry_cmd.encode(
@@ -186,10 +188,10 @@ def main():
     vault_addr = get_vault_addr()
     gatekeeper_addr = get_gatekeeper_addr()
 
-    configs = ConfigParser(config_path=config)
+    configs = ConfigParser(config=config)
     configs.load_configs()
 
-    required_secrets = secret.parse_secret_file(secrets)
+    required_secrets = secret.parse_secret_data(json.loads(secrets))
 
     vaultkeeper = Vaultkeeper(configs=configs,
                               secrets=required_secrets,

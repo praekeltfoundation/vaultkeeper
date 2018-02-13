@@ -15,10 +15,7 @@ def configs():
         'gatekeeper_addr': 'https://test-gatekeeper-instance.net',
         'vault_addr': 'https://test-vault-instance.net',
         'entry_cmd': '',
-        'working_directory': '',
-        'credential_path': '',
-        'lease_path': '',
-        'token_refresh': 300,
+        'output_path': '',
         'refresh_interval': 30,
         'renewal_grace': 15,
     }
@@ -154,7 +151,7 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
-        self.vaultkeeper.configs.credential_path = (
+        self.vaultkeeper.configs.output_path = (
             tmpdir.join('./creds.txt').strpath)
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_success.py'
@@ -170,7 +167,7 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
-        self.vaultkeeper.configs.credential_path = (
+        self.vaultkeeper.configs.output_path = (
             tmpdir.join('./creds.txt').strpath)
 
         self.vaultkeeper.configs.entry_cmd = 'python ./test/normal_failure.py'
@@ -191,7 +188,7 @@ class TestVaultkeeper(object):
         self.vaultkeeper.vault_client.token = (
             '00000000-0000-0000-0000-000000000001')
         self.vaultkeeper.vault_secret = vault_token()
-        self.vaultkeeper.configs.credential_path = (
+        self.vaultkeeper.configs.output_path = (
             tmpdir.join('./creds.txt').strpath)
 
         self.vaultkeeper.configs.entry_cmd = (
