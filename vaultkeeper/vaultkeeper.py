@@ -85,12 +85,15 @@ class Vaultkeeper(object):
         self.vault_client = hvac.Client(url=self.vault_addr)
 
     def get_wrapped_token(self):
+        print('gonna fetch that token now')
         payload = {'task_id': self.taskid}
         r = requests.post(self.gatekeeper_addr + '/token',
                           json=payload)
         response = r.json()
         if response['ok']:
             self.wrapped_token = response['token']
+            print('yeah i got that wrappend token: ')
+            print(response['token'])
             return self.wrapped_token
         raise RuntimeError('The service encountered an error '
                            + 'retrieving its wrapped token '
